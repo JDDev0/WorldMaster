@@ -1,6 +1,13 @@
 # WorldMaster
 This is a spigot MC plugin with many usefull commands.
 
+## Instalation
+1) Unzip the zip file from the release
+2) Go in the unziped folder
+3) Copy the .jar file into your plugins directory of your server
+4) Start the server. If the server was already started, type "/reload" in the server console.
+5) Have fun!
+
 ## Config
 **Quotes are required for the text!**<br>
 **welcome**: 'Text'<br>
