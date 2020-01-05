@@ -27,7 +27,7 @@ If set to true, all portals will be disabled.<br>
 */world set_permission "Name" build "Permission"*: Sets the build permission of the world with the name "Name" to "Permission". If "Permission" is "no_permission", the build permission will be set to non permission.<br>
 */world set_allowed_gamemodes "Name" "Gamemodes..."*: Sets the allowed gamemodes of the world with the name "Name". If "Gamemodes..." is "all_gamemodes", all gamemodes will be allowed.<br>
 */world set_time "Name" "Time"*: Sets the time of the world with the name "Name". "Time" can be a number or a preset string.<br>
-*/world Set_difficulty "Name" "Difficulty"*: Sets the difficulty of the world with the name "Name".
+*/world Set_difficulty "Name" "Difficulty"*: Sets the difficulty of the world with the name "Name".<br>
 */world list*: Shows all available worlds.<br>
 */world tp "Name"*: Teleports the player who enterd the command to the world spawn point of the world with the name "Name".<br><br>
 
