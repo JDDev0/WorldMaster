@@ -1,7 +1,7 @@
 # WorldMaster
 This is a spigot MC plugin with many usefull commands.
 
-## Instalation
+## Installation
 1) Unzip the zip file from the release
 2) Go in the unziped folder
 3) Copy the .jar file into your plugins directory of your server
