@@ -1,2 +1,6 @@
 welcome: '§6The Server§r!'
+disable_welcome: false
 disable_portals: false
+disable_player_prefix: false
+disable_custom_chat: false
+disable_player_counter: false

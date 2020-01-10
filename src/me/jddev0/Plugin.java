@@ -198,23 +198,25 @@ public class Plugin extends JavaPlugin {
 		getCommand(cmds.cmdInventory).setExecutor(cmds);
 		getCommand(cmds.cmdReloadConfig).setExecutor(cmds);
 		
-		getServer().createBossBar(new NamespacedKey(this, "player_count"), ChatColor.GOLD + "Players online (" + getServer().
-		getOnlinePlayers().size() + "/" + getServer().getMaxPlayers() + ")", BarColor.YELLOW, BarStyle.SEGMENTED_20);
-		getServer().getBossBar(new NamespacedKey(this, "player_count")).setProgress((double)(getServer().getOnlinePlayers().
-		size())/getServer().getMaxPlayers());
-		{ //Double player count bossbar fix
-			getServer().getOnlinePlayers().forEach(p -> {
-				//Remove bossbar
-				getServer().getBossBars().forEachRemaining(bb -> {
-					bb.removePlayer(p);
+		if(!getConfig().getBoolean("disable_player_counter")) {
+			getServer().createBossBar(new NamespacedKey(this, "player_count"), ChatColor.GOLD + "Players online (" + getServer().
+			getOnlinePlayers().size() + "/" + getServer().getMaxPlayers() + ")", BarColor.YELLOW, BarStyle.SEGMENTED_20);
+			getServer().getBossBar(new NamespacedKey(this, "player_count")).setProgress((double)(getServer().getOnlinePlayers().
+			size())/getServer().getMaxPlayers());
+			{ //Double player count bossbar fix
+				getServer().getOnlinePlayers().forEach(p -> {
+					//Remove bossbar
+					getServer().getBossBars().forEachRemaining(bb -> {
+						bb.removePlayer(p);
+					});
 				});
-			});
-			getServer().getOnlinePlayers().forEach(p -> {
-				//Set bossbar
-				getServer().getBossBars().forEachRemaining(bb -> {
-					bb.addPlayer(p);
+				getServer().getOnlinePlayers().forEach(p -> {
+					//Set bossbar
+					getServer().getBossBars().forEachRemaining(bb -> {
+						bb.addPlayer(p);
+					});
 				});
-			});
+			}
 		}
 		
 		getServer().getPluginManager().registerEvents(new Event(this), this);
@@ -245,9 +247,11 @@ public class Plugin extends JavaPlugin {
 			player.removeAttachment(permissions.remove(player.getUniqueId()));
 		}
 		
-		//Remove all players before deleting
-		getServer().getBossBar(new NamespacedKey(this, "player_count")).removeAll();
-		getServer().removeBossBar(new NamespacedKey(this, "player_count"));
+		if(!getConfig().getBoolean("disable_player_counter")) {
+			//Remove all players before deleting
+			getServer().getBossBar(new NamespacedKey(this, "player_count")).removeAll();
+			getServer().removeBossBar(new NamespacedKey(this, "player_count"));
+		}
 		
 		getServer().getConsoleSender().sendMessage(PLUGIN_NAME + ChatColor.GREEN + "Plugin has been disabled.\n");
 	}

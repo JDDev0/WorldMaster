@@ -12,6 +12,15 @@ This is a spigot MC plugin with many usefull commands.
 **Quotes are required for the text!**<br>
 **welcome**: 'Text'<br>
 If a player joins, the text "Welcome to 'Text'" will be shown.<br><br>
+**disable_welcome**: true or false<br>
+If set to true, the player who join won't see a welcome text.<br><br>
+**disable_player_prefix**: true or false<br>
+If set to true, players won't have prefixes.<br><br>
+**disable_custom_chat**: true or false<br>
+If set to true, the chat is the normal minecraft server chat.<br><br>
+**disable_player_counter**: true or false<br>
+**If changed, a server restart is required!**<br>
+If set to true, the player counter won't be visible.<br><br>
 **disable_portals**: true or false<br>
 If set to true, all portals will be disabled.<br>
 
