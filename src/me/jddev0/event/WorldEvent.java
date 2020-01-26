@@ -16,6 +16,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -216,6 +217,23 @@ public class WorldEvent implements Listener {
 			if(!p.hasPermission(plugin.getSaveConfig().getString("worldPermissions." + worldName + ".build"))) {
 				event.setCancelled(true);
 				p.sendMessage(ChatColor.RED + "You can't interact with entities in the world " + worldName + "!");
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onArmorStandMainpulate(PlayerArmorStandManipulateEvent event) {
+		Player p = event.getPlayer();
+		if(p.getWorld().getName().equals("world") && !p.hasPermission("build_spawn")) {
+			event.setCancelled(true);
+			p.sendMessage(ChatColor.RED + "You can't interact with armor stands in the spawn world!");
+		}
+		
+		String worldName = p.getWorld().getName();
+		if(plugin.getSaveConfig().contains("worldPermissions." + worldName + ".build")) {
+			if(!p.hasPermission(plugin.getSaveConfig().getString("worldPermissions." + worldName + ".build"))) {
+				event.setCancelled(true);
+				p.sendMessage(ChatColor.RED + "You can't interact with armor stands in the world " + worldName + "!");
 			}
 		}
 	}
