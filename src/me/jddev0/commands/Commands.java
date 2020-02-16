@@ -925,8 +925,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				String[] coords = ((String)data).split("#");
 				Vector vector = new Vector(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
 				//Without y distance
-				double distance = Math.sqrt(Math.pow(playerPos.getX() - vector.getX(), 2) + Math.pow(playerPos.getZ() -
-				vector.getBlockZ(), 2));
+				double distance = Math.sqrt(Math.pow(playerPos.getX() - vector.getX(), 2) + Math.pow(playerPos.getZ() - vector.getZ(), 2));
 				if(distance <= fewestDistance[0]) {
 					fewestDistance[0] = distance;
 					elevatorName[0] = actualElevatorName;
@@ -1669,6 +1668,62 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						return true;
 					}
+				}else if(action.equals("edit_position")) {
+					if(args.length == 7) {
+						String positionName = args[1];
+						String icon = args[2];
+						String world = args[3];
+						String[] coordsTxt = new String[] {args[4], args[5], args[6]};
+						double[] coords = new double[3];
+						for(int i = 0;i < coordsTxt.length;i++) {
+							try {
+								coords[i] = Double.parseDouble(coordsTxt[i]);
+							}catch(NumberFormatException e) {
+								p.sendMessage(ChatColor.GOLD + coordsTxt[i] + ChatColor.RED + " isn't a number!");
+								
+								return true;
+							}
+						}
+						
+						Material m = Material.matchMaterial(icon);
+						if(m == null) {
+							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
+							" doesn't exsists!");
+							
+							return true;
+						}
+						if(plugin.getServer().getWorld(world) == null) {
+							p.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + world + ChatColor.RED +
+							" doesn't exsists!");
+							
+							return true;
+						}
+						
+						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
+						if(!teleporters.contains("positions")) {
+							p.sendMessage(ChatColor.RED + "There aren't any positions!");
+							
+							return true;
+						}
+						ConfigurationSection positions = teleporters.getConfigurationSection("positions");
+						if(!positions.contains(positionName)) {
+							p.sendMessage(ChatColor.RED + "The position " + ChatColor.GOLD + positionName + ChatColor.RED +
+							" doesn't exsists!");
+							
+							return true;
+						}
+						
+						ConfigurationSection position = positions.getConfigurationSection(positionName);
+						position.set("icon", icon);
+						position.set("world", world);
+						position.set("pos", new Vector(coords[0], coords[1], coords[2]));
+						plugin.saveSaveConfig();
+						
+						p.sendMessage(ChatColor.GREEN + "The position " + ChatColor.GOLD + positionName + ChatColor.GREEN +
+						" was successfully updated!");
+						
+						return true;
+					}
 				}else if(action.equals("remove_position")) {
 					if(args.length == 2) {
 						String positionName = args[1];
@@ -1713,7 +1768,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					}
 				}
 			}else if(!action.equals("give")) {
-				sender.sendMessage(ChatColor.RED + "You haven't the permission to call " + ChatColor.GOLD + " /teleporter " +
+				sender.sendMessage(ChatColor.RED + "You haven't the permission to call " + ChatColor.GOLD + "/teleporter " +
 				action + ChatColor.RED + "!");
 				return true;
 			}
@@ -1736,6 +1791,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				autoComplete.add("add");
 				autoComplete.add("remove");
 				autoComplete.add("add_position");
+				autoComplete.add("edit_position");
 				autoComplete.add("remove_position");
 			}
 			
@@ -1775,7 +1831,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					});
 					
 					return autoComplete;
-				}else if(args[0].equals("remove_position")) {
+				}else if(args[0].equals("edit_position") || args[0].equals("remove_position")) {
 					ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 					if(!teleporters.contains("positions")) {
 						autoComplete.add(ChatColor.RED + "There aren't any positions!");
@@ -1792,7 +1848,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 3) {
 			if(p.hasPermission("teleporter")) {
-				if(args[0].equals("create") || args[0].equals("add_position")) {
+				if(args[0].equals("create") || args[0].equals("add_position") || args[0].equals("edit_position")) {
 					for(Material m:Material.values()) {
 						if(m.toString().startsWith("LEGACY_") || !m.isItem())
 							continue;
@@ -1845,7 +1901,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					}
 					
 					return autoComplete;
-				}else if(args[0].equals("add_position")) {
+				}else if(args[0].equals("add_position") || args[0].equals("edit_position")) {
 					autoComplete.add(p.getWorld().getName());
 					
 					return autoComplete;
@@ -1853,7 +1909,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 5) {
 			if(p.hasPermission("teleporter")) {
-				if(args[0].equals("add_position")) {
+				if(args[0].equals("add_position") || args[0].equals("edit_position")) {
 					autoComplete.add(p.getLocation().getBlockX() + "");
 					
 					return autoComplete;
@@ -1861,7 +1917,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 6) {
 			if(p.hasPermission("teleporter")) {
-				if(args[0].equals("add_position")) {
+				if(args[0].equals("add_position") || args[0].equals("edit_position")) {
 					autoComplete.add(p.getLocation().getBlockY() + "");
 					
 					return autoComplete;
@@ -1869,7 +1925,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 7) {
 			if(p.hasPermission("teleporter")) {
-				if(args[0].equals("add_position")) {
+				if(args[0].equals("add_position") || args[0].equals("edit_position")) {
 					autoComplete.add(p.getLocation().getBlockZ() + "");
 					
 					return autoComplete;
@@ -2014,7 +2070,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				inventoryWorlds.set(worldName + ".inventory", name);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldName + ChatColor.GREEN + " was successfully added to the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldName + ChatColor.GREEN + " was successfully"
+				+ "added to the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 				
 				return true;
 			}else if(args[0].equals("remove_world")) {
@@ -2033,7 +2090,65 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				inventoryWorlds.set(worldName, null);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldName + ChatColor.GREEN + " was successfully removed to the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldName + ChatColor.GREEN + " was successfully removed "
+				+ "from the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+				
+				return true;
+			}else if(args[0].equals("set_default_spawn_point")) {
+				if(!inventoryNames.contains(name)) {
+					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					
+					return true;
+				}
+				
+				if(!worldName.equals("no_spawn_point")) {
+					return false;
+				}
+				
+				ConfigurationSection inventory = inventoryNames.getConfigurationSection(name);
+				if(inventory.contains("spawn_point")) {
+					inventory.set("spawn_point", null);
+					plugin.saveSaveConfig();
+				}
+				
+				sender.sendMessage(ChatColor.GREEN + "The spawn point of the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " "
+				+ "was successfully removed from inventory!");
+				
+				return true;
+			}
+		}else if(args.length == 6) {
+			String name = args[1];
+			String worldName = args[2];
+			int x, y, z;
+			try {
+				x = Integer.parseInt(args[3]);
+				y = Integer.parseInt(args[4]);
+				z = Integer.parseInt(args[5]);
+			}catch(NumberFormatException e) {
+				sender.sendMessage(ChatColor.RED + "All coordinates have to be numbers!");
+				
+				return true;
+			}
+			
+			if(args[0].equals("set_default_spawn_point")) {
+				if(!inventoryNames.contains(name)) {
+					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					
+					return true;
+				}
+				
+				if(plugin.getServer().getWorld(worldName) == null) {
+					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldName + ChatColor.RED + " wasn't found!");
+					
+					return true;
+				}
+				
+				ConfigurationSection inventory = inventoryNames.getConfigurationSection(name);
+				inventory.set("spawn_point", new Location(plugin.getServer().getWorld(worldName), x, y, z));
+				plugin.saveSaveConfig();
+				
+				sender.sendMessage(ChatColor.GREEN + "The spawn point of the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " "
+				+ "was successfully seted to inventory!");
 				
 				return true;
 			}
@@ -2055,6 +2170,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			autoComplete.add("list_world");
 			autoComplete.add("add_world");
 			autoComplete.add("remove_world");
+			if(sender instanceof Player)
+				autoComplete.add("set_default_spawn_point");
 			
 			String start = args[0];
 			for(int i = autoComplete.size() - 1;i > -1;i--) {
@@ -2093,9 +2210,34 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					autoComplete.add(world.getName());
 				}
+			}else if(args[0].equals("set_default_spawn_point")) {
+				if(sender instanceof Player) {
+					Player p = (Player)sender;
+					autoComplete.add("no_spawn_point");
+					autoComplete.add(p.getWorld().getName());
+					
+					for(int i = autoComplete.size() - 1;i > -1;i--)
+						if(!autoComplete.get(i).startsWith(args[2]))
+							autoComplete.remove(i);
+				}
 			}
 			
 			return autoComplete;
+		}else if(args.length == 4) {
+			if(sender instanceof Player && !args[2].equals("no_spawn_point")) {
+				Player p = (Player)sender;
+				autoComplete.add(p.getLocation().getBlockX() + "");
+			}
+		}else if(args.length == 5 && !args[2].equals("no_spawn_point")) {
+			if(sender instanceof Player) {
+				Player p = (Player)sender;
+				autoComplete.add(p.getLocation().getBlockY() + "");
+			}
+		}else if(args.length == 6 && !args[2].equals("no_spawn_point")) {
+			if(sender instanceof Player) {
+				Player p = (Player)sender;
+				autoComplete.add(p.getLocation().getBlockZ() + "");
+			}
 		}
 		
 		return autoComplete;

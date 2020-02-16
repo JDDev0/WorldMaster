@@ -61,6 +61,7 @@ If set to true, all portals will be disabled.<br>
 */teleporter add "Name" "PositionName" "Slot"*: Adds the position with the name "PositionName" to the slot "Slot" of the teleporter menu with the name "Name".<br>
 */teleporter remove "Name" "Slot"*: Removes the position in the slot "Slot" of the teleporter menu with the name "Name".<br>
 */teleporter add_position "PositionName" "Icon" "WorldName" "Coords"*: Creates the position with the name "PositionName" and the icon "Icon". If someone clicks on the position in a teleporter menu, he will teleported to the coordinates "Coords" in the world with the name "World".<br>
+*/teleporter edit_position "PositionName" "Icon" "WorldName" "Coords"*: Changes the icon position and world of the position with the name "PositionName".<br>
 */teleporter remove_position "PositionName"*: Removes the position and all ocurents of the position with the name "PositionName".<br><br>
 
 **Chunk loader**:<br>
@@ -72,7 +73,8 @@ If set to true, all portals will be disabled.<br>
 */inventory remove "Name"*: Removes the inventory system with the name "Name".<br>
 */inventory list_world "Name"*: Lists all worlds where the inventory system with the name "Name" is used.<br>
 */inventory add_world "Name" "World"*: Adds the world with the name "World" to the inventory system with the name "Name".<br>
-*/inventory remove_world "Name" "World"*: Removes the world with the name "World" form the inventory system with the name "Name".<br><br>
+*/inventory remove_world "Name" "World"*: Removes the world with the name "World" form the inventory system with the name "Name".<br>
+*/inventory set_default_spawn_point "Name" "World" "coords"*: Sets the default spawn point for the inventory system with the name "Name". If "World" is "no_spawn_point", the default spawn point of the server will be used.<br><br>
 
 **Reload Config**:<br>
 */reload_config*: Reloads the config files of the plugin.<br>
@@ -81,7 +83,7 @@ If set to true, all portals will be disabled.<br>
 *world*: Enables the use of /world "add", "remove", "renew" and "set_..."<br>
 *permission*: Enables the whole command /permission<br>
 *elevator*: Enables the use of /elevator "make", "create", "remove", "add_floor", "remove_floor" and "set_speed"<br>
-*teleporter*: Enables the use of /teleporter "create", "delete", "add", "remove", "add_position" and "remove_position"<br>
+*teleporter*: Enables the use of /teleporter "create", "delete", "add", "remove", "add_position", "edit_position" and "remove_position"<br>
 *chunk_loader*: Enables the whole command /chunk_loader<br>
 *reload_config*: Enables the whole command /reload_config<br>
 *inventory*: Enables the whole command /inventory<br>

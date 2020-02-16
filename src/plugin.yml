@@ -1,6 +1,6 @@
 name: WorldMaster
 author: JDDev0
-version: 1.0.2
+version: 1.0.3
 api-version: 1.15
 main: me.jddev0.Plugin
 description: World commands and other utilities
@@ -19,7 +19,7 @@ commands:
         usage: §c/elevator <make|create|remove|add_floor|remove_floor|set_speed|move> [<name>|<floorName>] [<floorHeight>|<floorName>|<speed>] [<doorPos>] [<permission>]
     teleporter:
         description: Teleporter command
-        usage: §c/teleporter <create|delete|give|add|remove|add_position|remove_position> <name>|<positon_name>|<slot> [<position_name>|<icon>] [<slot>|<world_name>] [<coords>]
+        usage: §c/teleporter <create|delete|give|add|remove|add_position|edit_position|remove_position> <name>|<positon_name>|<slot> [<position_name>|<icon>] [<slot>|<world_name>] [<coords>]
     chunk_loader:
         description: Chunk loader command
         usage: §c/chunk_loader
@@ -27,7 +27,7 @@ commands:
         permission-message: §cYou don't have the permission for this command
     inventory:
         description: Inventory command
-        usage: §c/inventory <list>|<add>|<remove>|<list_world>|<add_world>|<remove_world> [<name>] [<world>]
+        usage: §c/inventory <list>|<add>|<remove>|<list_world>|<add_world>|<remove_world> [<name>] [<world>] [<coords>]
         permission: worldmaster.inventory
         permission-message: §cYou don't have the permission for this command
     reload_config:

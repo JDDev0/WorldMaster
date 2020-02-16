@@ -24,6 +24,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 
@@ -120,6 +121,24 @@ public class WorldEvent implements Listener {
 		if(!oldInventory.equals(newInventory)) {
 			plugin.saveInventory(event.getPlayer(), oldInventory);
 			plugin.loadInventory(event.getPlayer(), newInventory);
+		}
+	}
+	
+	//Player respawn event
+	@EventHandler
+	public void onPlayerRespawn(PlayerRespawnEvent event) {
+		String worldName = event.getPlayer().getWorld().getName();
+		
+		ConfigurationSection inventoryNames = plugin.getSaveConfig().getConfigurationSection("inventories.names");
+		ConfigurationSection inventoryWorlds = plugin.getSaveConfig().getConfigurationSection("inventories.worlds");
+		
+		if(inventoryWorlds.contains(worldName)) {
+			ConfigurationSection inventory = inventoryNames.getConfigurationSection(inventoryWorlds.getString(worldName + ".inventory"));
+			
+			if(inventory.contains("spawn_point")) {
+				event.setRespawnLocation(inventory.getLocation("spawn_point"));
+				//FIXME save bed location from players in inventory system
+			}
 		}
 	}
 	
@@ -304,7 +323,7 @@ public class WorldEvent implements Listener {
 				}
 				
 				if(event.getClickedBlock().getType().isInteractable()) {
-					if(event.getClickedBlock().getType() == Material.BIRCH_WALL_SIGN)
+					if(event.getClickedBlock().getType().toString().endsWith("SIGN"))
 						return;
 					
 					event.setCancelled(true);
@@ -338,8 +357,7 @@ public class WorldEvent implements Listener {
 					}
 					
 					if(event.getClickedBlock().getType().isInteractable()) {
-						if(event.getClickedBlock().getType() == Material.BIRCH_SIGN || event.getClickedBlock().getType() ==
-						Material.BIRCH_WALL_SIGN)
+						if(event.getClickedBlock().getType().toString().endsWith("SIGN"))
 							return;
 						
 						event.setCancelled(true);
