@@ -87,6 +87,21 @@ public class WorldEvent implements Listener {
 		String worldNameFrom = event.getFrom().getName();
 		String worldName = event.getPlayer().getWorld().getName();
 		
+		//Set inventory
+		String oldInventory = "default";
+		String newInventory = "default";
+		ConfigurationSection inventoryWorlds = plugin.getSaveConfig().getConfigurationSection("inventories.worlds");
+		if(inventoryWorlds.contains(worldNameFrom)) {
+			oldInventory = inventoryWorlds.getString(worldNameFrom + ".inventory");
+		}
+		if(inventoryWorlds.contains(worldName)) {
+			newInventory = inventoryWorlds.getString(worldName + ".inventory");
+		}
+		if(!oldInventory.equals(newInventory)) {
+			plugin.saveInventory(event.getPlayer(), oldInventory);
+			plugin.loadInventory(event.getPlayer(), newInventory);
+		}
+		
 		//Set gamemode
 		if(plugin.getSaveConfig().contains("joinGamemodes")) {
 			ConfigurationSection joinGamemodes = plugin.getSaveConfig().getConfigurationSection("joinGamemodes");
@@ -103,24 +118,7 @@ public class WorldEvent implements Listener {
 				worldName + ChatColor.RED + "!");
 				
 				event.getPlayer().teleport(plugin.getServer().getWorld("world").getSpawnLocation());
-				
-				return;
 			}
-		}
-		
-		//Set inventory
-		String oldInventory = "default";
-		String newInventory = "default";
-		ConfigurationSection inventoryWorlds = plugin.getSaveConfig().getConfigurationSection("inventories.worlds");
-		if(inventoryWorlds.contains(worldNameFrom)) {
-			oldInventory = inventoryWorlds.getString(worldNameFrom + ".inventory");
-		}
-		if(inventoryWorlds.contains(worldName)) {
-			newInventory = inventoryWorlds.getString(worldName + ".inventory");
-		}
-		if(!oldInventory.equals(newInventory)) {
-			plugin.saveInventory(event.getPlayer(), oldInventory);
-			plugin.loadInventory(event.getPlayer(), newInventory);
 		}
 	}
 	

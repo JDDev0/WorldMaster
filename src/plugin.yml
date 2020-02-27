@@ -1,6 +1,6 @@
 name: WorldMaster
 author: JDDev0
-version: 1.0.3
+version: 1.0.4
 api-version: 1.15
 main: me.jddev0.Plugin
 description: World commands and other utilities
@@ -27,7 +27,7 @@ commands:
         permission-message: §cYou don't have the permission for this command
     inventory:
         description: Inventory command
-        usage: §c/inventory <list>|<add>|<remove>|<list_world>|<add_world>|<remove_world> [<name>] [<world>] [<coords>]
+        usage: §c/inventory <list>|<add>|<remove>|<list_world>|<add_world>|<remove_world>|<set_default_spawn_point> [<name>] [<world>] [<coords>]
         permission: worldmaster.inventory
         permission-message: §cYou don't have the permission for this command
     reload_config:

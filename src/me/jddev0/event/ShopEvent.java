@@ -152,13 +152,58 @@ public class ShopEvent implements Listener {
 			if(shops.get(pos + ".owner").equals(p.getUniqueId() + "")) {
 				event.setCancelled(true);
 				
-				Inventory shopMenu = plugin.getServer().createInventory(null, 27, ChatColor.RED + "Mine" + ChatColor.BOLD +
+				Inventory shopMenu = plugin.getServer().createInventory(null, 54, ChatColor.RED + "Mine" + ChatColor.BOLD +
 				ChatColor.GOLD + "Shop" + ChatColor.RESET + "-" + ChatColor.BLUE + "Owner" + ChatColor.RESET +
 				" [ID: " + pos + "]");
 				
+				//Buy interface
+				for(int i = 0;i < 4;i++) {
+					String itemKey = pos + ".in." + i;
+					if(!shops.contains(itemKey))
+						break;
+					
+					shopMenu.setItem(i, shops.getItemStack(itemKey));
+				}
+				
+				ItemStack buyItem = new ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA);
+				ItemMeta meta = buyItem.getItemMeta();
+				meta.setDisplayName(ChatColor.GOLD + "Pay left items, get right items!");
+				buyItem.setItemMeta(meta);
+				shopMenu.setItem(13, buyItem);
+				
+				for(int i = 0;i < 4;i++) {
+					String itemKey = pos + ".out." + i;
+					if(!shops.contains(itemKey))
+						break;
+					shopMenu.setItem(i + 5, shops.getItemStack(itemKey));
+				}
+				
+				ItemStack placeHolder = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+				meta = placeHolder.getItemMeta();
+				meta.setDisplayName(" ");
+				placeHolder.setItemMeta(meta);
+				for(int i = 0;i < 9;i++) {
+					for(int j = 0;j < 3;j += 2) {
+						int index = 9*j + i;
+						if(shopMenu.getItem(index) == null) {
+							shopMenu.setItem(index, placeHolder);
+						}
+					}
+				}
+				placeHolder = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+				meta = placeHolder.getItemMeta();
+				meta.setDisplayName(" ");
+				placeHolder.setItemMeta(meta);
+				for(int i = 9;i < 18;i++) {
+					if(shopMenu.getItem(i) == null) {
+						shopMenu.setItem(i, placeHolder);
+					}
+				}
+				
+				//Storage interface
 				for(int i = 0;i < 27;i++) {
 					if(shops.contains(pos + ".content." + i)) {
-						shopMenu.setItem(i, shops.getItemStack(pos + ".content." + i));
+						shopMenu.setItem(i + 27, shops.getItemStack(pos + ".content." + i));
 					}
 				}
 				
@@ -177,15 +222,15 @@ public class ShopEvent implements Listener {
 					shopMenu.setItem(i, shops.getItemStack(itemKey));
 				}
 				
-				ItemStack posItem = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+				ItemStack posItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 				ItemMeta meta = posItem.getItemMeta();
 				meta.setDisplayName(pos);
 				posItem.setItemMeta(meta);
-				shopMenu.setItem(8, posItem);
+				shopMenu.setItem(4, posItem);
 				
 				ItemStack buyItem = new ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA);
 				meta = buyItem.getItemMeta();
-				meta.setDisplayName(ChatColor.GOLD + "Pay top row items, get bottom row items!");
+				meta.setDisplayName(ChatColor.GOLD + "Pay left items, get right items!");
 				buyItem.setItemMeta(meta);
 				shopMenu.setItem(13, buyItem);
 				
@@ -193,11 +238,10 @@ public class ShopEvent implements Listener {
 					String itemKey = pos + ".out." + i;
 					if(!shops.contains(itemKey))
 						break;
-					
-					shopMenu.setItem(i + 18, shops.getItemStack(itemKey));
+					shopMenu.setItem(i + 5, shops.getItemStack(itemKey));
 				}
 				
-				ItemStack placeHolder = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+				ItemStack placeHolder = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 				meta = placeHolder.getItemMeta();
 				meta.setDisplayName(" ");
 				placeHolder.setItemMeta(meta);
@@ -223,13 +267,33 @@ public class ShopEvent implements Listener {
 		InventoryView inv = event.getView();
 		
 		String name = inv.getTitle();
+		if(name.startsWith(ChatColor.RED + "Mine" + ChatColor.BOLD + ChatColor.GOLD + "Shop" + ChatColor.RESET + "-" + ChatColor.BLUE +
+		"Owner" + ChatColor.RESET)) {
+			if(event.getClickedInventory() != null && event.getClickedInventory().equals(inv.getTopInventory())) {
+				int clickedSlot = event.getSlot();
+				if(clickedSlot < 27) {
+					event.setCancelled(true);
+					
+					return;
+				}
+			}
+			
+			if(event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT ||
+			event.getClick() == ClickType.DOUBLE_CLICK) {
+				event.setCancelled(true);
+				
+				return;
+			}
+		}
+		
 		if(name.equals(ChatColor.RED + "Mine" + ChatColor.BOLD + ChatColor.GOLD + "Shop" + ChatColor.RESET)) {
-			ItemStack posItem = inv.getTopInventory().getItem(8);
-			if(posItem != null && posItem.getType() == Material.LIGHT_GRAY_STAINED_GLASS_PANE) {
+			ItemStack posItem = inv.getTopInventory().getItem(4);
+			if(posItem != null && posItem.getType() == Material.GRAY_STAINED_GLASS_PANE) {
 				String pos = posItem.getItemMeta().getDisplayName();
 				ConfigurationSection shops = plugin.getSaveConfig().getConfigurationSection("shops");
 				if(shops.contains(pos)) {
-					if(event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT) {
+					if(event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT ||
+					event.getClick() == ClickType.DOUBLE_CLICK) {
 						event.setCancelled(true);
 						
 						return;
@@ -242,13 +306,13 @@ public class ShopEvent implements Listener {
 							break;
 					}
 					
-					if(inputCount == 0) {
-						event.setCancelled(true);
-						
-						return;
-					}
-					
 					if(event.getClickedInventory() != null && event.getClickedInventory().equals(inv.getTopInventory())) {
+						if(inputCount == 0) {
+							event.setCancelled(true);
+							
+							return;
+						}
+						
 						int clickedSlot = event.getSlot();
 						if(clickedSlot < 9 || clickedSlot > 8 + inputCount) {
 							event.setCancelled(true);
@@ -398,8 +462,8 @@ public class ShopEvent implements Listener {
 		
 		String name = inv.getTitle();
 		if(name.equals(ChatColor.RED + "Mine" + ChatColor.BOLD + ChatColor.GOLD + "Shop" + ChatColor.RESET)) {
-			ItemStack posItem = inv.getTopInventory().getItem(8);
-			if(posItem != null && posItem.getType() == Material.LIGHT_GRAY_STAINED_GLASS_PANE) {
+			ItemStack posItem = inv.getTopInventory().getItem(4);
+			if(posItem != null && posItem.getType() == Material.GRAY_STAINED_GLASS_PANE) {
 				for(int i = 9;i < 18;i++) {
 					if(i == 13)
 						continue;
@@ -424,7 +488,7 @@ public class ShopEvent implements Listener {
 					ConfigurationSection shops = plugin.getSaveConfig().getConfigurationSection("shops");
 					if(shops.contains(pos)) {
 						for(int i = 0;i < 27;i++) {
-							ItemStack item = inv.getTopInventory().getItem(i);
+							ItemStack item = inv.getTopInventory().getItem(i + 27);
 							if(item == null)
 								shops.set(pos + ".content." + i, null);
 							else

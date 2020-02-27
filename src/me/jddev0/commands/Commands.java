@@ -15,6 +15,7 @@ import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
@@ -25,6 +26,7 @@ import org.bukkit.block.data.Openable;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -668,34 +670,160 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	}
 	
 	private boolean execCmdPermission(CommandSender sender, Command cmd, String label, String[] args) {
-		if(!sender.hasPermission("permission")) {
-			sender.sendMessage(ChatColor.RED + "You don't have the permission for this command");
+		if(!sender.hasPermission("permission") || !(sender instanceof Player || sender instanceof ConsoleCommandSender)) {
+			sender.sendMessage(ChatColor.RED + "You haven't the permission for this command!");
 			return true;
 		}
 		
 		if(args.length == 3) {
 			Player player = Bukkit.getPlayer(args[1]);
+			UUID uuid = null;
 			String permission = args[2];
 			
-			if(args[0].equals("allow")) {
-				plugin.permissions.get(player.getUniqueId()).setPermission(permission, true);
-				plugin.savePermissions(player);
+			if(player == null) {
+				for(OfflinePlayer offPlayer:plugin.getServer().getOfflinePlayers()) {
+					if(offPlayer.getName().equals(args[1])) {
+						uuid = offPlayer.getUniqueId();
+						break;
+					}
+				}
 				
-				sender.sendMessage("The value of " + permission + " of " + player.getName() + " is now set to true!");
+				if(uuid == null) {
+					sender.sendMessage("The player with the name " + args[1] + " doesn't exists!");
+					
+					return true;
+				}
+			}else {
+				uuid = player.getUniqueId();
+			}
+			
+			if(args[0].equals("allow")) {
+				if(plugin.permissions.containsKey(uuid)) {
+					plugin.permissions.get(uuid).setPermission(permission, true);
+					plugin.savePermissions(player);
+				}else {
+					List<String> permissions;
+					if(plugin.getSaveConfig().contains("player." + uuid + ".permissions")) {
+						String configStr = plugin.getSaveConfig().getString("player." + uuid + ".permissions");
+						permissions = new LinkedList<>(Arrays.asList(configStr.split("###")));
+					}else {
+						permissions = new LinkedList<>();
+					}
+					
+					//Set permission "permission" to true
+					boolean flag = true;
+					for(int i = 0;i < permissions.size();i++) {
+						String permissionName = permissions.get(i).split("##")[0];
+						
+						if(permissionName.equals(permission)) {
+							permissions.set(i, permissionName + "##true");
+							flag = false;
+							break;
+						}
+					}
+					if(flag) {
+						permissions.add(permission + "##true");
+					}
+					
+					if(permissions.size() == 0) {
+						plugin.getSaveConfig().set("player." + uuid + ".permissions", null);
+					}else {
+						StringBuilder permissionsBuilder = new StringBuilder();
+						for(String perm:permissions) {
+							permissionsBuilder.append(perm);
+							permissionsBuilder.append("###");
+						}
+						permissionsBuilder.delete(permissionsBuilder.length() - 3, permissionsBuilder.length());
+						plugin.getSaveConfig().set("player." + uuid + ".permissions", permissionsBuilder.toString());
+					}
+					plugin.saveSaveConfig();
+				}
+				
+				sender.sendMessage("The value of " + permission + " of " + args[1] + " is now set to true!");
 				
 				return true;
 			}else if(args[0].equals("disallow")) {
-				plugin.permissions.get(player.getUniqueId()).setPermission(permission, false);
-				plugin.savePermissions(player);
+				if(plugin.permissions.containsKey(uuid)) {
+					plugin.permissions.get(uuid).setPermission(permission, false);
+					plugin.savePermissions(player);
+				}else {
+					List<String> permissions;
+					if(plugin.getSaveConfig().contains("player." + uuid + ".permissions")) {
+						String configStr = plugin.getSaveConfig().getString("player." + uuid + ".permissions");
+						permissions = new LinkedList<>(Arrays.asList(configStr.split("###")));
+					}else {
+						permissions = new LinkedList<>();
+					}
+					
+					//Set permission "permission" to true
+					boolean flag = true;
+					for(int i = 0;i < permissions.size();i++) {
+						String permissionName = permissions.get(i).split("##")[0];
+						
+						if(permissionName.equals(permission)) {
+							permissions.set(i, permissionName + "##false");
+							flag = false;
+							break;
+						}
+					}
+					if(flag) {
+						permissions.add(permission + "##false");
+					}
+					
+					if(permissions.size() == 0) {
+						plugin.getSaveConfig().set("player." + uuid + ".permissions", null);
+					}else {
+						StringBuilder permissionsBuilder = new StringBuilder();
+						for(String perm:permissions) {
+							permissionsBuilder.append(perm);
+							permissionsBuilder.append("###");
+						}
+						permissionsBuilder.delete(permissionsBuilder.length() - 3, permissionsBuilder.length());
+						plugin.getSaveConfig().set("player." + uuid + ".permissions", permissionsBuilder.toString());
+					}
+					plugin.saveSaveConfig();
+				}
 				
-				sender.sendMessage("The value of " + permission + " of " + player.getName() + " is now set to false!");
+				sender.sendMessage("The value of " + permission + " of " + args[1] + " is now set to false!");
 				
 				return true;
 			}else if(args[0].equals("default")) {
-				plugin.permissions.get(player.getUniqueId()).unsetPermission(permission);
-				plugin.savePermissions(player);
-				
-				sender.sendMessage("The value of " + permission + " of " + player.getName() + " is now set to default!");
+				if(plugin.permissions.containsKey(uuid)) {
+					plugin.permissions.get(uuid).unsetPermission(permission);
+					plugin.savePermissions(player);
+				}else {
+					List<String> permissions;
+					if(plugin.getSaveConfig().contains("player." + uuid + ".permissions")) {
+						String configStr = plugin.getSaveConfig().getString("player." + uuid + ".permissions");
+						permissions = new LinkedList<>(Arrays.asList(configStr.split("###")));
+					}else {
+						permissions = new LinkedList<>();
+					}
+					
+					//Set permission "permission" to true
+					for(int i = 0;i < permissions.size();i++) {
+						String permissionName = permissions.get(i).split("##")[0];
+						
+						if(permissionName.equals(permission)) {
+							permissions.remove(i);
+							break;
+						}
+					}
+					
+					if(permissions.size() == 0) {
+						plugin.getSaveConfig().set("player." + uuid + ".permissions", null);
+					}else {
+						StringBuilder permissionsBuilder = new StringBuilder();
+						for(String perm:permissions) {
+							permissionsBuilder.append(perm);
+							permissionsBuilder.append("###");
+						}
+						permissionsBuilder.delete(permissionsBuilder.length() - 3, permissionsBuilder.length());
+						plugin.getSaveConfig().set("player." + uuid + ".permissions", permissionsBuilder.toString());
+					}
+					plugin.saveSaveConfig();
+				}
+				sender.sendMessage("The value of " + permission + " of " + args[1] + " is now set to default!");
 				
 				return true;
 			}
@@ -705,7 +833,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	private List<String> tabCmdPermission(CommandSender sender, Command cmd, String label, String[] args) {
 		List<String> autoComplete = new ArrayList<>();
 		
-		if(!sender.hasPermission("permission")) {
+		if(!sender.hasPermission("permission") || !(sender instanceof Player || sender instanceof ConsoleCommandSender)) {
 			return autoComplete;
 		}
 		
@@ -724,6 +852,10 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			return autoComplete;
 		}else if(args.length == 2) {
 			for(Player player:plugin.getServer().getOnlinePlayers()) {
+				if(player.getName().startsWith(args[1])) {
+					autoComplete.add(player.getName());
+				}
+			}for(OfflinePlayer player:plugin.getServer().getOfflinePlayers()) {
 				if(player.getName().startsWith(args[1])) {
 					autoComplete.add(player.getName());
 				}
@@ -1962,7 +2094,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	
 	private boolean execCmdInventory(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!sender.hasPermission("inventory")) {
-			sender.sendMessage(ChatColor.RED + "You don't have the permission for this command");
+			sender.sendMessage(ChatColor.RED + "You haven't the permission for this command!");
 			return true;
 		}
 		

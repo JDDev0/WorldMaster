@@ -170,6 +170,7 @@ public class Plugin extends JavaPlugin {
 				new WorldCreator("world_" + world).createWorld();
 			}
 		}
+		reloadSaveConfig(); //For default_spawn_point for inventories
 		
 		loadPermissions();
 	}
