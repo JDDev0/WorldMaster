@@ -35,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -431,8 +432,22 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							
 							if(type.equals("enter")) {
 								worldPermissions.set(name + ".enter", permission.equals("no_permission")?null:permission);
+								
+								//Add custom permission
+								if(!permission.equals("no_permission")) {
+									try {
+										Bukkit.getPluginManager().addPermission(new Permission(permission, "A custom permission"));
+									}catch(IllegalArgumentException e) {}
+								}
 							}else if(type.equals("build")) {
 								worldPermissions.set(name + ".build", permission.equals("no_permission")?null:permission);
+								
+								//Add custom permission
+								if(!permission.equals("no_permission")) {
+									try {
+										Bukkit.getPluginManager().addPermission(new Permission(permission, "A custom permission"));
+									}catch(IllegalArgumentException e) {}
+								}
 							}else {
 								p.sendMessage(ChatColor.RED + type + " isn't allowed!");
 								
@@ -1320,6 +1335,11 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						if(args.length == 7) {
 							String permission = args[6];
 							floors.set("permission." + floorName, permission);
+							
+							//Add custom permission
+							try {
+								Bukkit.getPluginManager().addPermission(new Permission(permission, "A custom permission"));
+							}catch(IllegalArgumentException e) {}
 						}
 						plugin.saveSaveConfig();
 						

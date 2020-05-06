@@ -89,6 +89,7 @@ If set to true, all portals will be disabled.<br>
 *inventory*: Enables the whole command /inventory<br>
 *build_spawn*: Emables the building in the spawn world<br>
 *shop_owner*: Enables the creation of shops<br>
+*command_block*: If the permission isn't set, the player can't use command blocks<br>
 
 ## Shop
 1) Place normal single chest

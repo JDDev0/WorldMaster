@@ -45,6 +45,7 @@ public class Event implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
+		plugin.addNetworkHandler(p);
 		
 		plugin.permissions.put(p.getUniqueId(), p.addAttachment(plugin));
 		plugin.loadPermissions(p);
@@ -75,6 +76,7 @@ public class Event implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player p = event.getPlayer();
+		plugin.removeNetworkHandler(p);
 		if(!plugin.getConfig().getBoolean("disable_custom_chat")) {
 			event.setQuitMessage(ChatColor.GOLD + "The player " + p.getDisplayName() + ChatColor.GOLD + " left the game!");
 		}

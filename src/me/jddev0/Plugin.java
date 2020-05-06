@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -14,11 +15,19 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import me.jddev0.commands.Commands;
 import me.jddev0.event.Event;
 import me.jddev0.event.ShopEvent;
@@ -27,6 +36,8 @@ import me.jddev0.items.ItemChunkLoaderEvent;
 import me.jddev0.items.ItemElevatorSelectorEvent;
 import me.jddev0.items.ItemTeleporterEvent;
 import net.md_5.bungee.api.ChatColor;
+import net.minecraft.server.v1_15_R1.PacketPlayInSetCommandBlock;
+import net.minecraft.server.v1_15_R1.PacketPlayInSetCommandMinecart;
 
 public class Plugin extends JavaPlugin {
 	private final String PLUGIN_NAME = "[" + ChatColor.RED + ChatColor.BOLD + "World" + ChatColor.RESET + ChatColor.BLUE +
@@ -39,6 +50,50 @@ public class Plugin extends JavaPlugin {
 	
 	public FileConfiguration getSaveConfig() {
 		return configManager.getSaveConfig();
+	}
+	
+	public void removeNetworkHandler(Player p) {
+		Channel channel = ((CraftPlayer)p).getHandle().playerConnection.networkManager.channel;
+		channel.eventLoop().submit(() -> {
+			channel.pipeline().remove(p.getName());
+			return null;
+		});
+	}
+	public void addNetworkHandler(Player p) {
+		ChannelDuplexHandler handler = new ChannelDuplexHandler() {
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+				//Command block protection
+				String cmdRaw = null;
+				if(msg instanceof PacketPlayInSetCommandBlock) {
+					PacketPlayInSetCommandBlock scb = (PacketPlayInSetCommandBlock)msg;
+					cmdRaw = scb.c();
+				}
+				if(msg instanceof PacketPlayInSetCommandMinecart) {
+					PacketPlayInSetCommandMinecart scm = (PacketPlayInSetCommandMinecart)msg;
+					cmdRaw = scm.b();
+				}
+				
+				if(cmdRaw != null) {
+					if(cmdRaw.startsWith("/"))
+						cmdRaw = cmdRaw.replaceFirst("/", "");
+					String cmd = cmdRaw.split(" ")[0]; //Get command label only
+					
+					if(cmd.contains(":"))
+						cmd = cmd.split(":")[1];
+					
+					if(!p.hasPermission("minecraft.command." + cmd) || !p.hasPermission("bukkit.command." + cmd)) {
+						p.sendMessage(ChatColor.RED + "You haven't enought rights to set the command to " + ChatColor.GOLD + "/" + cmdRaw + ChatColor.RED + "!");
+						
+						return; //Prevent setting of the command
+					}
+				}
+				
+				super.channelRead(ctx, msg);
+			}
+		};
+		ChannelPipeline pipline = ((CraftPlayer)p).getHandle().playerConnection.networkManager.channel.pipeline();
+		pipline.addBefore("packet_handler", p.getName(), handler);
 	}
 	
 	public void removePlayerFromElevatorBlocks(Player p) {
@@ -68,14 +123,31 @@ public class Plugin extends JavaPlugin {
 			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".ender.chest." + i, items[i]);
 		}
 		
+		int i = 0;
+		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects", null);
+		for(PotionEffect pef:p.getActivePotionEffects()) {
+			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects." + i + ".name", pef.getType().getName());
+			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects." + i + ".dur", pef.getDuration());
+			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects." + i + ".amp", pef.getAmplifier());
+			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects." + i + ".amb", pef.isAmbient());
+			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects." + i + ".par", pef.hasParticles());
+			getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".effects." + i + ".icon", pef.hasIcon());
+			i++;
+		}
+		
 		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".level", p.getLevel());
 		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".xp", p.getExp());
 		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".health", p.getHealth());
 		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".food_level", p.getFoodLevel());
 		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".saturation", p.getSaturation());
+		getSaveConfig().set("player." + p.getUniqueId() + ".inventory." + invName + ".absorption_hearts", p.getAbsorptionAmount());
 		saveSaveConfig();
 	}
 	public void loadInventory(Player p, String invName) {
+		for(PotionEffect pef:p.getActivePotionEffects()) {
+			p.removePotionEffect(pef.getType());
+		}
+		
 		if(getSaveConfig().contains("player." + p.getUniqueId() + ".inventory." + invName)) {
 			if(getSaveConfig().contains("player." + p.getUniqueId() + ".inventory." + invName + ".content")) {
 				ConfigurationSection itemsSection = getSaveConfig().getConfigurationSection("player." + p.getUniqueId() + ".inventory." + invName + ".content");
@@ -101,16 +173,27 @@ public class Plugin extends JavaPlugin {
 				p.getEnderChest().clear();
 			}
 			
+			if(getSaveConfig().contains("player." + p.getUniqueId() + ".inventory." + invName + ".effects")) {
+				ConfigurationSection effectsSection = getSaveConfig().getConfigurationSection("player." + p.getUniqueId() + ".inventory." + invName + ".effects");
+				for(String id:effectsSection.getKeys(false)) {
+					ConfigurationSection effect = effectsSection.getConfigurationSection(id);
+					p.addPotionEffect(new PotionEffect(PotionEffectType.getByName(effect.getString("name")), effect.getInt("dur"),
+					effect.getInt("amp"), effect.getBoolean("amb"), effect.getBoolean("par"), effect.getBoolean("icon")));
+				}
+			}
+			
 			p.setLevel(getSaveConfig().getInt("player." + p.getUniqueId() + ".inventory." + invName + ".level"));
 			p.setExp((float)getSaveConfig().getDouble("player." + p.getUniqueId() + ".inventory." + invName + ".xp"));
 			p.setHealth(getSaveConfig().getDouble("player." + p.getUniqueId() + ".inventory." + invName + ".health"));
 			p.setFoodLevel(getSaveConfig().getInt("player." + p.getUniqueId() + ".inventory." + invName + ".food_level"));
 			p.setSaturation((float)getSaveConfig().getDouble("player." + p.getUniqueId() + ".inventory." + invName + ".saturation"));
+			p.setAbsorptionAmount(getSaveConfig().getDouble("player." + p.getUniqueId() + ".inventory." + invName + ".absorption_hearts", 0));
 		}else {
 			p.getInventory().clear();
 			p.getEnderChest().clear();
 			p.setExp(0);
 			p.setLevel(0);
+			p.setAbsorptionAmount(0);
 		}
 	}
 	
@@ -135,6 +218,38 @@ public class Plugin extends JavaPlugin {
 	public void loadPermissions() {
 		for(Player p:getServer().getOnlinePlayers()) {
 			loadPermissions(p);
+		}
+		
+		//Load custom permission
+		//World
+		if(getSaveConfig().contains("worldPermissions")) {
+			ConfigurationSection worldPermissions = getSaveConfig().getConfigurationSection("worldPermissions");
+			for(String world:worldPermissions.getKeys(false)) {
+				ConfigurationSection worldSection = worldPermissions.getConfigurationSection(world);
+				for(String type:worldSection.getKeys(false)) {
+					try {
+						Bukkit.getPluginManager().addPermission(new Permission(worldSection.getString(type), "A custom permission"));
+					}catch(IllegalArgumentException e) {}
+				}
+			}
+		}
+		//Elevator
+		if(getSaveConfig().contains("elevators")) {
+			ConfigurationSection elevators = getSaveConfig().getConfigurationSection("elevators");
+			for(String elevator:elevators.getKeys(false)) {
+				ConfigurationSection elevatorSection = elevators.getConfigurationSection(elevator);
+				if(elevatorSection.contains("floors")) {
+					ConfigurationSection floors = elevatorSection.getConfigurationSection("floors");
+					if(floors.contains("permission")) {
+						ConfigurationSection permissions = floors.getConfigurationSection("permission");
+						for(String floorPerm:permissions.getKeys(false)) {
+							try {
+								Bukkit.getPluginManager().addPermission(new Permission(permissions.getString(floorPerm), "A custom permission"));
+							}catch(IllegalArgumentException e) {}
+						}
+					}
+				}
+			}
 		}
 	}
 	public void savePermissions(Player p) {

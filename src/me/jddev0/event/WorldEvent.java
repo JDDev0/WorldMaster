@@ -4,8 +4,12 @@ import java.util.List;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -236,6 +240,17 @@ public class WorldEvent implements Listener {
 				p.sendMessage(ChatColor.RED + "You can't interact with entities in the world " + worldName + "!");
 			}
 		}
+		
+		//CommandBlock protection
+		Entity entity = event.getRightClicked();
+		if(entity != null) {
+			if(entity.getType() == EntityType.MINECART_COMMAND && !p.hasPermission("command_block")) {
+				p.sendMessage(ChatColor.RED + "You haven't enought rights for using command blocks!");
+				p.closeInventory();
+				event.setCancelled(true);
+				return;
+			}
+		}
 	}
 	
 	@EventHandler
@@ -360,6 +375,22 @@ public class WorldEvent implements Listener {
 						
 						event.setCancelled(true);
 						p.sendMessage(ChatColor.RED + "You can't open block inventories in the world " + worldName + "!");
+					}
+				}
+			}
+		}
+		
+		//CommandBlock protection
+		Block block = event.getClickedBlock();
+		if(event.getAction() == Action.RIGHT_CLICK_BLOCK && block != null) {
+			BlockState state = block.getState();
+			if(state != null){
+				if(state instanceof CommandBlock){
+					if(!p.hasPermission("command_block")) {
+						p.sendMessage(ChatColor.RED + "You haven't enought rights for using command blocks!");
+						p.closeInventory();
+						event.setCancelled(true);
+						return;
 					}
 				}
 			}
