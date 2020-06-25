@@ -716,6 +716,9 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				if(plugin.permissions.containsKey(uuid)) {
 					plugin.permissions.get(uuid).setPermission(permission, true);
 					plugin.savePermissions(player);
+					
+					//Updates the tab completion list
+					player.updateCommands();
 				}else {
 					List<String> permissions;
 					if(plugin.getSaveConfig().contains("player." + uuid + ".permissions")) {
@@ -761,6 +764,9 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				if(plugin.permissions.containsKey(uuid)) {
 					plugin.permissions.get(uuid).setPermission(permission, false);
 					plugin.savePermissions(player);
+					
+					//Updates the tab completion list
+					player.updateCommands();
 				}else {
 					List<String> permissions;
 					if(plugin.getSaveConfig().contains("player." + uuid + ".permissions")) {
@@ -806,6 +812,9 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				if(plugin.permissions.containsKey(uuid)) {
 					plugin.permissions.get(uuid).unsetPermission(permission);
 					plugin.savePermissions(player);
+					
+					//Updates the tab completion list
+					player.updateCommands();
 				}else {
 					List<String> permissions;
 					if(plugin.getSaveConfig().contains("player." + uuid + ".permissions")) {

@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -323,17 +324,7 @@ public class WorldEvent implements Listener {
 				
 				event.setCancelled(true);
 			}else if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				Material inHand = event.getMaterial();
-				//"EGG": Spawn eggs and eggs
-				//"BOW": Bows and crossbows
-				if(inHand.toString().endsWith("EGG") || inHand.toString().endsWith("BOW") || inHand.toString().endsWith("BOAT") ||
-				inHand.toString().endsWith("MINECART") || inHand == Material.ENDER_PEARL|| inHand == Material.TRIDENT ||
-				inHand == Material.FIREWORK_ROCKET || inHand == Material.ARMOR_STAND || inHand == Material.SPLASH_POTION ||
-				inHand == Material.LINGERING_POTION || inHand == Material.EXPERIENCE_BOTTLE ||
-				inHand == Material.FLINT_AND_STEEL || inHand == Material.FISHING_ROD) {
-					event.setCancelled(true);
-					p.sendMessage(ChatColor.RED + "You can't use tools in the spawn world!");
-				}
+				event.setUseItemInHand(Result.DENY);
 				
 				if(event.getClickedBlock().getType().isInteractable()) {
 					if(event.getClickedBlock().getType().toString().endsWith("SIGN"))
@@ -357,17 +348,7 @@ public class WorldEvent implements Listener {
 					
 					event.setCancelled(true);
 				}else if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-					Material inHand = event.getMaterial();
-					//"EGG": Spawn eggs and eggs
-					//"BOW": Bows and crossbows
-					if(inHand.toString().endsWith("EGG") || inHand.toString().endsWith("BOW") || inHand.toString().
-					endsWith("BOAT") || inHand.toString().endsWith("MINECART") || inHand == Material.ENDER_PEARL||
-					inHand == Material.TRIDENT || inHand == Material.FIREWORK_ROCKET || inHand == Material.ARMOR_STAND ||
-					inHand == Material.SPLASH_POTION || inHand == Material.LINGERING_POTION || inHand ==
-					Material.EXPERIENCE_BOTTLE || inHand == Material.FLINT_AND_STEEL || inHand == Material.FISHING_ROD) {
-						event.setCancelled(true);
-						p.sendMessage(ChatColor.RED + "You can't use tools in the world " + worldName + "!");
-					}
+					event.setUseItemInHand(Result.DENY);
 					
 					if(event.getClickedBlock().getType().isInteractable()) {
 						if(event.getClickedBlock().getType().toString().endsWith("SIGN"))
