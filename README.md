@@ -96,7 +96,7 @@ If set to true, all portals will be disabled.<br>
 2) Put the buy items in the first row [First 4 slots]
 3) Put the sell items in the last row [First 4 slots]
 4) Place a sign on the chest with the text [In 1st row]: [Shop]
-5) But more items for selling in the chest
+5) Put more items for selling in the chest
 6) [Optional] Take all items for buying out of the chest
 
 The shop owner sees all items in the chest and the buyer sees the shop page
