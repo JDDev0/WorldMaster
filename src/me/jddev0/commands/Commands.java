@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -33,6 +34,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.permissions.Permission;
@@ -2213,25 +2215,102 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 3) {
 			String name = args[1];
-			String worldName = args[2];
+			String worldOrPlayerName = args[2];
 			
-			if(args[0].equals("add_world")) {
+			if(args[0].equals("show")) {
+				if(!(sender instanceof Player)) {
+					sender.sendMessage(ChatColor.RED + "Only players can use " + ChatColor.GOLD + "show" + ChatColor.RED + "!");
+					
+					return true;
+				}
+				
+				Player p = (Player)sender;
+				
+				if(!inventoryNames.contains(name) && !name.equals("default")) {
+					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					
+					return true;
+				}
+				
+				OfflinePlayer player = null;
+				for(OfflinePlayer playerCheck:plugin.getServer().getOfflinePlayers()) {
+					if(playerCheck.getName().equals(worldOrPlayerName)) {
+						player = playerCheck;
+						
+						break;
+					}
+				}
+				if(player == null) {
+					sender.sendMessage(ChatColor.RED + "The player " + ChatColor.GOLD + worldOrPlayerName + ChatColor.RED + " wasn't found!");
+					
+					return true;
+				}
+				
+				Inventory playerInv = plugin.getServer().createInventory(null, 54, ChatColor.GOLD + "Inventory " + ChatColor.RESET + "[" +
+				worldOrPlayerName + "@" + name + "]");
+				if(plugin.getSaveConfig().contains("player." + player.getUniqueId() + ".inventory." + name + ".content")) {
+					ConfigurationSection itemsSection = plugin.getSaveConfig().getConfigurationSection("player." + player.getUniqueId() + ".inventory." + name +
+					".content");
+					Set<String> savedItems = itemsSection.getKeys(false);
+					ItemStack[] items = new ItemStack[54];
+					savedItems.forEach(key -> {
+						int index = Integer.parseInt(key);
+						int indexForLayout = index;
+						ItemStack item = itemsSection.getItemStack(key);
+						
+						//Change index for proper layout
+						{
+							//Off-hand
+							if(index == 40)
+								indexForLayout = 8;
+							
+							//Helmet
+							if(index == 39)
+								indexForLayout = 0;
+							//Chestplate
+							if(index == 38)
+								indexForLayout = 9;
+							//Leggings
+							if(index == 37)
+								indexForLayout = 1;
+							//Boots
+							if(index == 36)
+								indexForLayout = 10;
+							
+							//Main inventory
+							if(index > 8 && index < 36)
+								indexForLayout += 9;
+							
+							//Bottom inventory bar
+							if(index < 9)
+								indexForLayout += 45;
+						}
+						
+						items[indexForLayout] = item;
+					});
+					playerInv.setContents(items);
+				}
+				
+				p.openInventory(playerInv);
+				
+				return true;
+			}else if(args[0].equals("add_world")) {
 				if(!inventoryNames.contains(name)) {
 					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
 					
 					return true;
 				}
 				
-				if(plugin.getServer().getWorld(worldName) == null) {
-					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldName + ChatColor.RED + " wasn't found!");
+				if(plugin.getServer().getWorld(worldOrPlayerName) == null) {
+					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.RED + " wasn't found!");
 					
 					return true;
 				}
 				
-				inventoryWorlds.set(worldName + ".inventory", name);
+				inventoryWorlds.set(worldOrPlayerName + ".inventory", name);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldName + ChatColor.GREEN + " was successfully"
+				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.GREEN + " was successfully"
 				+ "added to the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 				
 				return true;
@@ -2242,16 +2321,16 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					return true;
 				}
 				
-				if(plugin.getServer().getWorld(worldName) == null) {
-					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldName + ChatColor.RED + " wasn't found!");
+				if(plugin.getServer().getWorld(worldOrPlayerName) == null) {
+					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.RED + " wasn't found!");
 					
 					return true;
 				}
 				
-				inventoryWorlds.set(worldName, null);
+				inventoryWorlds.set(worldOrPlayerName, null);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldName + ChatColor.GREEN + " was successfully removed "
+				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.GREEN + " was successfully removed "
 				+ "from the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 				
 				return true;
@@ -2262,7 +2341,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					return true;
 				}
 				
-				if(!worldName.equals("no_spawn_point")) {
+				if(!worldOrPlayerName.equals("no_spawn_point")) {
 					return false;
 				}
 				
@@ -2326,6 +2405,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 		
 		if(args.length == 1) {
 			autoComplete.add("list");
+			autoComplete.add("show");
 			autoComplete.add("add");
 			autoComplete.add("remove");
 			autoComplete.add("list_world");
@@ -2359,9 +2439,30 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}
 			});
 			
+			if(args[0].equals("show") && "default".startsWith(start)) {
+				autoComplete.add("default");
+			}
+			
 			return autoComplete;
 		}else if(args.length == 3) {
-			if(args[0].equals("add_world") || args[0].equals("remove_world")) {
+			if(args[0].equals("show")) {
+				String start = args[2];
+				
+				for(OfflinePlayer player:plugin.getServer().getOfflinePlayers()){
+					if(!player.getName().startsWith(start)) {
+						continue;
+					}
+					
+					autoComplete.add(player.getName());
+				}
+				for(Player player:plugin.getServer().getOnlinePlayers()){
+					if(!player.getName().startsWith(start)) {
+						continue;
+					}
+					
+					autoComplete.add(player.getName());
+				}
+			}else if(args[0].equals("add_world") || args[0].equals("remove_world")) {
 				String start = args[2];
 				
 				for(World world:plugin.getServer().getWorlds()) {

@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -45,7 +46,6 @@ public class Event implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
-		plugin.addNetworkHandler(p);
 		
 		plugin.permissions.put(p.getUniqueId(), p.addAttachment(plugin));
 		plugin.loadPermissions(p);
@@ -71,12 +71,12 @@ public class Event implements Listener {
 		if(!plugin.getConfig().getBoolean("disable_custom_chat")) {
 			event.setJoinMessage(ChatColor.GOLD + "The player " + p.getDisplayName() + ChatColor.GOLD + " joind the game!");
 		}
+		plugin.addNetworkHandler(p);
 	}
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player p = event.getPlayer();
-		plugin.removeNetworkHandler(p);
 		if(!plugin.getConfig().getBoolean("disable_custom_chat")) {
 			event.setQuitMessage(ChatColor.GOLD + "The player " + p.getDisplayName() + ChatColor.GOLD + " left the game!");
 		}
@@ -95,6 +95,7 @@ public class Event implements Listener {
 				}
 			}
 		}).start();
+		plugin.removeNetworkHandler(p);
 	}
 	
 	@EventHandler
@@ -119,6 +120,13 @@ public class Event implements Listener {
 	@EventHandler
 	public void onPortal(EntityPortalEvent event) {
 		if(plugin.getConfig().getBoolean("disable_portals")) {
+			event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onInventoryClick(InventoryClickEvent event) {
+		if(event.getView().getTitle().startsWith(ChatColor.GOLD + "Inventory " + ChatColor.RESET + "[")) {
 			event.setCancelled(true);
 		}
 	}

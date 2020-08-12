@@ -3,7 +3,6 @@ package me.jddev0.event;
 import java.util.List;
 
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CommandBlock;
@@ -319,14 +318,14 @@ public class WorldEvent implements Listener {
 				event.setCancelled(true);
 				p.sendMessage(ChatColor.RED + "You can't break blocks in the spawn world!");
 			}else if(event.getAction() == Action.PHYSICAL) {
-				if(event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.BIRCH_SIGN)
+				if(event.getClickedBlock() != null && event.getClickedBlock().getType().toString().endsWith("SIGN"))
 					return;
 				
 				event.setCancelled(true);
 			}else if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				event.setUseItemInHand(Result.DENY);
 				
-				if(event.getClickedBlock().getType().isInteractable()) {
+				if(event.getClickedBlock() != null && event.getClickedBlock().getType().isInteractable()) {
 					if(event.getClickedBlock().getType().toString().endsWith("SIGN"))
 						return;
 					
@@ -343,14 +342,14 @@ public class WorldEvent implements Listener {
 					event.setCancelled(true);
 					p.sendMessage(ChatColor.RED + "You can't break blocks in the world " + worldName + "!");
 				}else if(event.getAction() == Action.PHYSICAL) {
-					if(event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.BIRCH_SIGN)
+					if(event.getClickedBlock() != null && event.getClickedBlock().getType().toString().endsWith("SIGN"))
 						return;
 					
 					event.setCancelled(true);
 				}else if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 					event.setUseItemInHand(Result.DENY);
 					
-					if(event.getClickedBlock().getType().isInteractable()) {
+					if(event.getClickedBlock() != null && event.getClickedBlock().getType().isInteractable()) {
 						if(event.getClickedBlock().getType().toString().endsWith("SIGN"))
 							return;
 						

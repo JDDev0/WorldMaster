@@ -15,7 +15,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
@@ -36,8 +36,8 @@ import me.jddev0.items.ItemChunkLoaderEvent;
 import me.jddev0.items.ItemElevatorSelectorEvent;
 import me.jddev0.items.ItemTeleporterEvent;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_16_R1.PacketPlayInSetCommandBlock;
-import net.minecraft.server.v1_16_R1.PacketPlayInSetCommandMinecart;
+import net.minecraft.server.v1_16_R2.PacketPlayInSetCommandBlock;
+import net.minecraft.server.v1_16_R2.PacketPlayInSetCommandMinecart;
 
 public class Plugin extends JavaPlugin {
 	private final String PLUGIN_NAME = "[" + ChatColor.RED + ChatColor.BOLD + "World" + ChatColor.RESET + ChatColor.BLUE +
