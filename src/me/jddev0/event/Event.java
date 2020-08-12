@@ -71,7 +71,6 @@ public class Event implements Listener {
 		if(!plugin.getConfig().getBoolean("disable_custom_chat")) {
 			event.setJoinMessage(ChatColor.GOLD + "The player " + p.getDisplayName() + ChatColor.GOLD + " joind the game!");
 		}
-		plugin.addNetworkHandler(p);
 	}
 	
 	@EventHandler
@@ -95,7 +94,6 @@ public class Event implements Listener {
 				}
 			}
 		}).start();
-		plugin.removeNetworkHandler(p);
 	}
 	
 	@EventHandler

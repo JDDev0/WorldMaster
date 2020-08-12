@@ -15,7 +15,6 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
@@ -24,10 +23,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
 import me.jddev0.commands.Commands;
 import me.jddev0.event.Event;
 import me.jddev0.event.ShopEvent;
@@ -36,8 +31,6 @@ import me.jddev0.items.ItemChunkLoaderEvent;
 import me.jddev0.items.ItemElevatorSelectorEvent;
 import me.jddev0.items.ItemTeleporterEvent;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_16_R2.PacketPlayInSetCommandBlock;
-import net.minecraft.server.v1_16_R2.PacketPlayInSetCommandMinecart;
 
 public class Plugin extends JavaPlugin {
 	private final String PLUGIN_NAME = "[" + ChatColor.RED + ChatColor.BOLD + "World" + ChatColor.RESET + ChatColor.BLUE +
@@ -50,50 +43,6 @@ public class Plugin extends JavaPlugin {
 	
 	public FileConfiguration getSaveConfig() {
 		return configManager.getSaveConfig();
-	}
-	
-	public void removeNetworkHandler(Player p) {
-		Channel channel = ((CraftPlayer)p).getHandle().playerConnection.networkManager.channel;
-		channel.eventLoop().submit(() -> {
-			channel.pipeline().remove(p.getName());
-			return null;
-		});
-	}
-	public void addNetworkHandler(Player p) {
-		ChannelDuplexHandler handler = new ChannelDuplexHandler() {
-			@Override
-			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				//Command block protection
-				String cmdRaw = null;
-				if(msg instanceof PacketPlayInSetCommandBlock) {
-					PacketPlayInSetCommandBlock scb = (PacketPlayInSetCommandBlock)msg;
-					cmdRaw = scb.c();
-				}
-				if(msg instanceof PacketPlayInSetCommandMinecart) {
-					PacketPlayInSetCommandMinecart scm = (PacketPlayInSetCommandMinecart)msg;
-					cmdRaw = scm.b();
-				}
-				
-				if(cmdRaw != null) {
-					if(cmdRaw.startsWith("/"))
-						cmdRaw = cmdRaw.replaceFirst("/", "");
-					String cmd = cmdRaw.split(" ")[0]; //Get command label only
-					
-					if(cmd.contains(":"))
-						cmd = cmd.split(":")[1];
-					
-					if(!p.hasPermission("minecraft.command." + cmd) || !p.hasPermission("bukkit.command." + cmd)) {
-						p.sendMessage(ChatColor.RED + "You haven't enought rights to set the command to " + ChatColor.GOLD + "/" + cmdRaw + ChatColor.RED + "!");
-						
-						return; //Prevent setting of the command
-					}
-				}
-				
-				super.channelRead(ctx, msg);
-			}
-		};
-		ChannelPipeline pipline = ((CraftPlayer)p).getHandle().playerConnection.networkManager.channel.pipeline();
-		pipline.addBefore("packet_handler", p.getName(), handler);
 	}
 	
 	public void removePlayerFromElevatorBlocks(Player p) {

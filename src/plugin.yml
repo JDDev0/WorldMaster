@@ -27,7 +27,7 @@ commands:
         permission-message: §cYou don't have the permission for this command
     inventory:
         description: Inventory command
-        usage: §c/inventory <list>|<show><add>|<remove>|<list_world>|<add_world>|<remove_world>|<set_default_spawn_point> [<name>] [<world>|<Player>] [<coords>]
+        usage: §c/inventory <list>|<show>|<add>|<remove>|<list_world>|<add_world>|<remove_world>|<set_default_spawn_point> [<name>] [<world>|<Player>] [<coords>]
         permission: worldmaster.inventory
         permission-message: §cYou don't have the permission for this command
     reload_config:
