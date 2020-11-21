@@ -18,9 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Openable;
@@ -46,21 +44,22 @@ import me.jddev0.Plugin;
 import me.jddev0.items.ItemChunkLoader;
 import me.jddev0.items.ItemElevatorSelector;
 import me.jddev0.items.ItemTeleporter;
+import me.jddev0.world.creator.WorldMasterWorldCreator;
 import net.md_5.bungee.api.ChatColor;
 
 public class Commands implements Listener, TabCompleter, CommandExecutor {
 	private Plugin plugin;
 	
-	public String cmdWorld = "world";
+	public final String cmdWorld = "world";
 	//FIXME add allow (add to allowed list)/disallow (add to disallowed list) _command <name> <commands...>
 	//FIXME \-> cmdProtection.<world name>.allowed -> string list
 	//FIXME \-> cmdProtection.<world name>.disallowed -> string list
-	public String cmdPermission = "permission";
-	public String cmdElevator = "elevator";
-	public String cmdTeleporter = "teleporter";
-	public String cmdChunkLoader = "chunk_loader";
-	public String cmdInventory = "inventory";
-	public String cmdReloadConfig = "reload_config";
+	public final String cmdPermission = "permission";
+	public final String cmdElevator = "elevator";
+	public final String cmdTeleporter = "teleporter";
+	public final String cmdChunkLoader = "chunk_loader";
+	public final String cmdInventory = "inventory";
+	public final String cmdReloadConfig = "reload_config";
 	
 	public Commands(Plugin plugin) {
 		this.plugin = plugin;
@@ -101,44 +100,6 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}else if(args.length == 2) {
 				String name = args[1];
 				
-				if(action.equals("add")) {
-					if(!p.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
-						
-						return true;
-					}
-					if(!name.matches("[0-9a-zA-Z_]*") || name.equals("nether") || name.equals("the_end")) {
-						sender.sendMessage(ChatColor.RED + name + " is not allowed!");
-							
-						return true;
-					}
-					
-					String[] worlds = plugin.getSaveConfig().getString("worlds").split("#");
-					for(String worldName:worlds) {
-						if(worldName.equalsIgnoreCase(name)) {
-							sender.sendMessage(ChatColor.RED + name + " already exist!");
-							
-							return true;
-						}
-					}
-					
-					WorldCreator creator = new WorldCreator("world_" + name);
-					creator.type(WorldType.NORMAL);
-					creator.environment(Environment.NORMAL);
-					sender.sendMessage("Creating world " + name + "!");
-					
-					World world = plugin.getServer().createWorld(creator);
-					world.save();
-					
-					//Add world to list later
-					plugin.getSaveConfig().set("worlds", plugin.getSaveConfig().getString("worlds") + "#" + name);
-					plugin.saveSaveConfig();
-					
-					sender.sendMessage("World " + name + " was successfully created and added to world list!");
-					
-					return true;
-				}
-				
 				if(action.equals("remove")) {
 					if(!p.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
@@ -163,6 +124,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							}
 							
 							plugin.getSaveConfig().set("worlds", newWorlds);
+							plugin.getSaveConfig().set("world.world_" + name, null);
 							plugin.saveSaveConfig();
 							
 							World worldDelete = Bukkit.getWorld("world_" + name);
@@ -241,9 +203,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							plugin.getServer().unloadWorld(worldRegenerate, false);
 							deleteWorld(worldRegenerate.getWorldFolder());
 							
-							WorldCreator creator = new WorldCreator("world_" + name);
-							creator.type(WorldType.NORMAL);
-							creator.environment(Environment.NORMAL);
+							WorldCreator creator = new WorldMasterWorldCreator("world_" + name, plugin.getSaveConfig());
 							creator.seed(seed);
 							World regeneratedWorld = plugin.getServer().createWorld(creator);
 							regeneratedWorld.save();
@@ -467,7 +427,69 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}
 			}
 			
-			if(args.length > 2) {
+			if(args.length > 1) {
+				if(args.length < 6) {
+					String name = args[1];
+					
+					if(action.equals("add")) {
+						if(!p.hasPermission("world")) {
+							sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+							
+							return true;
+						}
+						if(!name.matches("[0-9a-zA-Z_]*") || name.equals("nether") || name.equals("the_end")) {
+							sender.sendMessage(ChatColor.RED + name + " is not allowed!");
+								
+							return true;
+						}
+						
+						String[] worlds = plugin.getSaveConfig().getString("worlds").split("#");
+						for(String worldName:worlds) {
+							if(worldName.equalsIgnoreCase(name)) {
+								sender.sendMessage(ChatColor.RED + name + " already exist!");
+								
+								return true;
+							}
+						}
+						
+						String dimension = null;
+						String type = null;
+						String blocks = null;
+						if(args.length > 2)
+							dimension = args[2];
+						if(args.length > 3)
+							type = args[3];
+						if(args.length > 4)
+							blocks = args[4];
+						
+						WorldMasterWorldCreator creator = new WorldMasterWorldCreator("world_" + name, WorldMasterWorldCreator.
+						convertDimension(dimension), WorldMasterWorldCreator.convertType(type), blocks);
+						sender.sendMessage("Creating world " + name + "!");
+						
+						World world = creator.createWorld();
+						world.save();
+						
+						//Add world to list later
+						plugin.getSaveConfig().set("worlds", plugin.getSaveConfig().getString("worlds") + "#" + name);
+						
+						if(dimension != null)
+							plugin.getSaveConfig().set("world.world_" + name + ".gen.dimension", dimension);
+						if(type != null)
+							plugin.getSaveConfig().set("world.world_" + name + ".gen.type", type);
+						if(blocks != null)
+							plugin.getSaveConfig().set("world.world_" + name + ".gen.blocks", blocks);
+						
+						plugin.saveSaveConfig();
+						
+						sender.sendMessage("World " + name + " was successfully created and added to world list!");
+						
+						return true;
+					}
+				}
+				
+				if(args.length < 3)
+					return false;
+					
 				String worldName = args[1];
 				String[] gamemodes = Arrays.copyOfRange(args, 2, args.length);
 				
@@ -586,7 +608,15 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			
 			return autoComplete;
 		}else if(args.length == 3) {
-			if(args[0].equals("set_join_gamemode")) {
+			if(args[0].equals("add")) {
+				if(p.hasPermission("world")) {
+					autoComplete.add("overworld");
+					autoComplete.add("nether");
+					autoComplete.add("the_end");
+					
+					return autoComplete;
+				}
+			}else if(args[0].equals("set_join_gamemode")) {
 				if(p.hasPermission("world")) {
 					String start = args[2];
 					if("no_gamemode".startsWith(start))
@@ -638,7 +668,14 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}
 			}
 		}else if(args.length == 4) {
-			if(args[0].equals("set_permission")) {
+			if(args[0].equals("add")) {
+				if(p.hasPermission("world") && args[2].equals("overworld")) {
+					autoComplete.add("default");
+					autoComplete.add("superflat");
+					
+					return autoComplete;
+				}
+			}else if(args[0].equals("set_permission")) {
 				if(p.hasPermission("world")) {
 					for(PermissionAttachmentInfo perm:sender.getEffectivePermissions()) {
 						String permission = perm.getPermission();
@@ -650,6 +687,16 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					if("no_permission".startsWith(args[3])) {
 						autoComplete.add("no_permission");
 					}
+					
+					return autoComplete;
+				}
+			}
+		}else if(args.length == 5) {
+			if(args[0].equals("add")) {
+				if(p.hasPermission("world") && args[3].equals("superflat")) {
+					autoComplete.add("GRASS");
+					autoComplete.add("REDSTONE");
+					autoComplete.add("AIR");
 					
 					return autoComplete;
 				}
@@ -1621,7 +1668,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						String icon = args[2];
 						
 						Material m = Material.matchMaterial(icon);
-						if(m == null) {
+						if(m == null || m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir()) {
 							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
 							" doesn't exsists!");
 							
@@ -1793,7 +1840,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						}
 						
 						Material m = Material.matchMaterial(icon);
-						if(m == null) {
+						if(m == null || m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir()) {
 							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
 							" doesn't exsists!");
 							
@@ -1849,7 +1896,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						}
 						
 						Material m = Material.matchMaterial(icon);
-						if(m == null) {
+						if(m == null || m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir()) {
 							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
 							" doesn't exsists!");
 							
@@ -2013,7 +2060,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			if(p.hasPermission("teleporter")) {
 				if(args[0].equals("create") || args[0].equals("add_position") || args[0].equals("edit_position")) {
 					for(Material m:Material.values()) {
-						if(m.toString().startsWith("LEGACY_") || !m.isItem())
+						if(m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir())
 							continue;
 						String name = m.getKey().getKey();
 						if(name.startsWith(args[2]))
@@ -2486,16 +2533,16 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			
 			return autoComplete;
 		}else if(args.length == 4) {
-			if(sender instanceof Player && !args[2].equals("no_spawn_point")) {
+			if(sender instanceof Player && args[0].equals("set_default_spawn_point") && !args[2].equals("no_spawn_point")) {
 				Player p = (Player)sender;
 				autoComplete.add(p.getLocation().getBlockX() + "");
 			}
-		}else if(args.length == 5 && !args[2].equals("no_spawn_point")) {
+		}else if(args.length == 5 && args[0].equals("set_default_spawn_point") && !args[2].equals("no_spawn_point")) {
 			if(sender instanceof Player) {
 				Player p = (Player)sender;
 				autoComplete.add(p.getLocation().getBlockY() + "");
 			}
-		}else if(args.length == 6 && !args[2].equals("no_spawn_point")) {
+		}else if(args.length == 6 && args[0].equals("set_default_spawn_point") && !args[2].equals("no_spawn_point")) {
 			if(sender instanceof Player) {
 				Player p = (Player)sender;
 				autoComplete.add(p.getLocation().getBlockZ() + "");

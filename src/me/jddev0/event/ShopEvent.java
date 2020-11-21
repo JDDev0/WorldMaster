@@ -31,6 +31,8 @@ import net.md_5.bungee.api.ChatColor;
 public class ShopEvent implements Listener {
 	private Plugin plugin;
 	
+	private Map<String, Player> playersInShopInv = new HashMap<>();
+	
 	public ShopEvent(Plugin plugin) {
 		this.plugin = plugin;
 	}
@@ -149,9 +151,16 @@ public class ShopEvent implements Listener {
 		String pos = block.getWorld().getName() + "." + block.getX() + "." + block.getY() + "." + block.getZ();
 		ConfigurationSection shops = plugin.getSaveConfig().getConfigurationSection("shops");
 		if(shops.contains(pos)) {
-			if(shops.get(pos + ".owner").equals(p.getUniqueId() + "")) {
-				event.setCancelled(true);
+			event.setCancelled(true);
+			
+			if(playersInShopInv.containsKey(pos)) {
+				p.sendMessage(ChatColor.RED + "Another player is already using the shop!");
 				
+				return;
+			}
+			playersInShopInv.put(pos, p);
+			
+			if(shops.get(pos + ".owner").equals(p.getUniqueId() + "")) {
 				Inventory shopMenu = plugin.getServer().createInventory(null, 54, ChatColor.RED + "Mine" + ChatColor.BOLD +
 				ChatColor.GOLD + "Shop" + ChatColor.RESET + "-" + ChatColor.BLUE + "Owner" + ChatColor.RESET +
 				" [ID: " + pos + "]");
@@ -167,7 +176,7 @@ public class ShopEvent implements Listener {
 				
 				ItemStack buyItem = new ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA);
 				ItemMeta meta = buyItem.getItemMeta();
-				meta.setDisplayName(ChatColor.GOLD + "Pay left items, get right items!");
+				meta.setDisplayName(ChatColor.GOLD + "Pay leftside items, get rightside items!");
 				buyItem.setItemMeta(meta);
 				shopMenu.setItem(13, buyItem);
 				
@@ -209,11 +218,10 @@ public class ShopEvent implements Listener {
 				
 				p.openInventory(shopMenu);
 			}else {
-				event.setCancelled(true);
-				
 				Inventory shopMenu = plugin.getServer().createInventory(null, 27, ChatColor.RED + "Mine" + ChatColor.BOLD +
 				ChatColor.GOLD + "Shop" + ChatColor.RESET);
 				
+				//Buy interface
 				for(int i = 0;i < 4;i++) {
 					String itemKey = pos + ".in." + i;
 					if(!shops.contains(itemKey))
@@ -463,6 +471,8 @@ public class ShopEvent implements Listener {
 		String name = inv.getTitle();
 		if(name.equals(ChatColor.RED + "Mine" + ChatColor.BOLD + ChatColor.GOLD + "Shop" + ChatColor.RESET)) {
 			ItemStack posItem = inv.getTopInventory().getItem(4);
+			
+			playersInShopInv.remove(posItem.getItemMeta().getDisplayName());
 			if(posItem != null && posItem.getType() == Material.GRAY_STAINED_GLASS_PANE) {
 				for(int i = 9;i < 18;i++) {
 					if(i == 13)
@@ -475,15 +485,14 @@ public class ShopEvent implements Listener {
 					}
 				}
 			}
-		}
-		
-		if(name.startsWith(ChatColor.RED + "Mine" + ChatColor.BOLD + ChatColor.GOLD + "Shop" + ChatColor.RESET + "-" +
+		}else if(name.startsWith(ChatColor.RED + "Mine" + ChatColor.BOLD + ChatColor.GOLD + "Shop" + ChatColor.RESET + "-" +
 		ChatColor.BLUE + "Owner" + ChatColor.RESET)) {
 			String[] data = name.split("\\[ID: ");
 			if(data.length == 2) {
 				data = data[1].split("\\]");
 				if(data.length == 1) {
 					String pos = data[0];
+					playersInShopInv.remove(pos);
 					
 					ConfigurationSection shops = plugin.getSaveConfig().getConfigurationSection("shops");
 					if(shops.contains(pos)) {

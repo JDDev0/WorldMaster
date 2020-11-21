@@ -10,7 +10,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.ConfigurationSection;
@@ -30,6 +29,7 @@ import me.jddev0.event.WorldEvent;
 import me.jddev0.items.ItemChunkLoaderEvent;
 import me.jddev0.items.ItemElevatorSelectorEvent;
 import me.jddev0.items.ItemTeleporterEvent;
+import me.jddev0.world.creator.WorldMasterWorldCreator;
 import net.md_5.bungee.api.ChatColor;
 
 public class Plugin extends JavaPlugin {
@@ -234,7 +234,7 @@ public class Plugin extends JavaPlugin {
 		String[] worlds = getSaveConfig().getString("worlds").split("#");
 		for(String world:worlds) {
 			if(!world.equals("spawn")) {
-				new WorldCreator("world_" + world).createWorld();
+				new WorldMasterWorldCreator("world_" + world, getSaveConfig()).createWorld();
 			}
 		}
 		reloadSaveConfig(); //For default_spawn_point for inventories

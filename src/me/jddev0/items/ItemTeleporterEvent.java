@@ -87,18 +87,19 @@ private Plugin plugin;
 		ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 		if(!teleporters.contains(name))
 			return;
-		if(!event.getClickedInventory().equals(inv.getTopInventory())) {
-			event.setCancelled(true);
+		
+		event.setCancelled(true);
+		
+		if(!event.getClickedInventory().equals(inv.getTopInventory()))
 			return;
-		}
-		ItemStack item = inv.getItem(event.getSlot());
+		
+		ItemStack item = inv.getTopInventory().getItem(event.getSlot());
 		if(item == null)
 			return;
+		
 		String locationName = item.getItemMeta().getDisplayName().split(ChatColor.GOLD + "", 2)[1].replaceAll(" ", "_");
 		ConfigurationSection positions = teleporters.getConfigurationSection("positions");
 		ConfigurationSection position = positions.getConfigurationSection(locationName);
-		
-		event.setCancelled(true);
 		
 		Vector vec = position.getVector("pos");
 		Location pos = new Location(plugin.getServer().getWorld(position.getString("world")), vec.getX(), vec.getY(),

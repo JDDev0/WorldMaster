@@ -16,7 +16,7 @@ public class ItemElevatorSelector extends ItemStack {
 		super(Material.STICK);
 		
 		ItemMeta meta = getItemMeta();
-		meta.setDisplayName(ChatColor.BOLD + "" + ChatColor.GOLD + "Elevator Selector");
+		meta.setDisplayName(ChatColor.GOLD + "Elevator Selector");
 		List<String> lore = new ArrayList<>();
 		lore.add(ChatColor.BLUE + "Select/Deselect blocks with right click");
 		meta.setLore(lore);

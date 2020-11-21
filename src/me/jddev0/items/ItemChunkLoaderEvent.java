@@ -28,7 +28,7 @@ private Plugin plugin;
 		ItemStack item = event.getItemInHand();
 		if(block.getType() == Material.END_PORTAL_FRAME) {
 			if(item.getType() == Material.END_PORTAL_FRAME) {
-				if(item.getItemMeta().getDisplayName().equals(ChatColor.BOLD + "" + ChatColor.GOLD + "Chunk Loader")) {
+				if(item.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Chunk Loader")) {
 					if(event.getPlayer().hasPermission("chunk_loader")) {
 						block.setMetadata("chunk_loader", new MetadataValueAdapter(plugin) {
 							@Override

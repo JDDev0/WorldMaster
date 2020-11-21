@@ -28,9 +28,9 @@ If set to true, all portals will be disabled.<br>
 **Don't use quotes in the arguments that are in quotes!**<br><br>
 
 **World**:<br>
-*/world add "Name"*: Adds the world with the name "Name". **May produce lag!**<br>
+*/world add "Name" ["Dimension"] ["World Type"]*: Adds the world with the name "Name" in the dimension "Dimension" with the world type "World Type". **May produce lag!**<br>
 */world remove "Name"*: Removes the world with the name "Name".<br>
-*/world renew "Name"*: Recreates the world with the name "Name" with the same seed.  **May produce lag!**<br>
+*/world renew "Name"*: Recreates the world with the name "Name" with the same seed, dimension and world type.  **May produce lag!**<br>
 */world set_join_gamemode "Name" "Gamemode"*: Sets the join gamemode of the world with the name "Name" to "Gamemode".<br>
 */world set_permission "Name" enter "Permission"*: Sets the enter permission of the world with the name "Name" to "Permission". If "Permission" is "no_permission", the enter permission will be set to non permission.<br>
 */world set_permission "Name" build "Permission"*: Sets the build permission of the world with the name "Name" to "Permission". If "Permission" is "no_permission", the build permission will be set to non permission.<br>
@@ -75,7 +75,7 @@ If set to true, all portals will be disabled.<br>
 */inventory list_world "Name"*: Lists all worlds where the inventory system with the name "Name" is used.<br>
 */inventory add_world "Name" "World"*: Adds the world with the name "World" to the inventory system with the name "Name".<br>
 */inventory remove_world "Name" "World"*: Removes the world with the name "World" form the inventory system with the name "Name".<br>
-*/inventory set_default_spawn_point "Name" "World" "coords"*: Sets the default spawn point for the inventory system with the name "Name". If "World" is "no_spawn_point", the default spawn point of the server will be used.<br><br>
+*/inventory set_default_spawn_point "Name" "World" "coords"*: Sets the default spawn point for the inventory system with the name "Name". If "coords" is "no_spawn_point", the default spawn point of the server will be used.<br><br>
 
 **Reload Config**:<br>
 */reload_config*: Reloads the config files of the plugin.<br>

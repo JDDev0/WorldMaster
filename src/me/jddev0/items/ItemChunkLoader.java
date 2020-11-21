@@ -16,7 +16,7 @@ public class ItemChunkLoader extends ItemStack {
 		super(Material.END_PORTAL_FRAME);
 		
 		ItemMeta meta = getItemMeta();
-		meta.setDisplayName(ChatColor.BOLD + "" + ChatColor.GOLD + "Chunk Loader");
+		meta.setDisplayName(ChatColor.BOLD + "Chunk Loader");
 		List<String> lore = new ArrayList<>();
 		lore.add(ChatColor.BLUE + "Place this block to load chunk!");
 		lore.add(ChatColor.BLUE + "Break this block to unload chunk!");

@@ -35,7 +35,7 @@ private Plugin plugin;
 			if(inHand == null)
 				return;
 			
-			if(inHand.getItemMeta().getDisplayName().equals(ChatColor.BOLD + "" + ChatColor.GOLD + "Elevator Selector")) {
+			if(inHand.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Elevator Selector")) {
 				Location pos = event.getClickedBlock().getLocation();
 				if(plugin.containsElevatorBlock(p, pos)) {
 					plugin.removeElevatorBlock(p, pos);
