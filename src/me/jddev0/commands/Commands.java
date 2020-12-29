@@ -76,13 +76,12 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 		file.delete();
 	}
 	private boolean execCmdWorld(CommandSender sender, Command cmd, String label, String[] args) {
-		if(!(sender instanceof Player)) {
-			sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+		if(!(sender instanceof Player) && !(sender instanceof ConsoleCommandSender)) {
+			sender.sendMessage(ChatColor.RED + "Only players or the server console can use this command!");
 			
 			return true;
 		}
 		
-		Player p = (Player)sender;
 		if(args.length > 0) {
 			String action = args[0];
 			if(args.length == 1) {
@@ -101,7 +100,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				String name = args[1];
 				
 				if(action.equals("remove")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -156,7 +155,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					return true;
 				}else if(action.equals("renew")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -224,6 +223,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					return true;
 				}else if(action.equals("tp")) {
+					if(!(sender instanceof Player)) {
+						sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+						
+						return true;
+					}
+					
+					Player p = (Player)sender;
 					String[] worlds = plugin.getSaveConfig().getString("worlds").split("#");
 					for(String world:worlds) {
 						if(world.equals(name)) {
@@ -244,7 +250,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				String name = args[1];
 				
 				if(action.equals("set_join_gamemode")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -293,7 +299,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					return true;
 				}else if(action.equals("set_time")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -334,7 +340,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					return true;
 				}else if(action.equals("set_difficulty")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -368,7 +374,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				String permission = args[3];
 				
 				if(action.equals("set_permission")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -411,7 +417,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 									}catch(IllegalArgumentException e) {}
 								}
 							}else {
-								p.sendMessage(ChatColor.RED + type + " isn't allowed!");
+								sender.sendMessage(ChatColor.RED + type + " isn't allowed!");
 								
 								return true;
 							}
@@ -432,7 +438,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					String name = args[1];
 					
 					if(action.equals("add")) {
-						if(!p.hasPermission("world")) {
+						if(!sender.hasPermission("world")) {
 							sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 							
 							return true;
@@ -494,7 +500,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				String[] gamemodes = Arrays.copyOfRange(args, 2, args.length);
 				
 				if(action.equals("set_allowed_gamemodes")) {
-					if(!p.hasPermission("world")) {
+					if(!sender.hasPermission("world")) {
 						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
 						
 						return true;
@@ -516,7 +522,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							}
 							plugin.saveSaveConfig();
 							
-							p.sendMessage("All gamemodes are now allowed in the world " + worldName + "!");
+							sender.sendMessage("All gamemodes are now allowed in the world " + worldName + "!");
 							return true;
 						}
 							
@@ -537,7 +543,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					allowedGamemodes.set(worldName, gamemodeList);
 					plugin.saveSaveConfig();
 					
-					p.sendMessage("The allowed gamemodes of the world " + worldName + " was successfully changed!");
+					sender.sendMessage("The allowed gamemodes of the world " + worldName + " was successfully changed!");
 					return true;
 				}
 			}
@@ -548,15 +554,16 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	private List<String> tabCmdWorld(CommandSender sender, Command cmd, String label, String[] args) {
 		List<String> autoComplete = new ArrayList<>();
 		
-		if(!(sender instanceof Player)) {
+		if(!(sender instanceof Player) && !(sender instanceof ConsoleCommandSender)) {
 			return new ArrayList<>();
 		}
 		
-		Player p = (Player)sender;
 		if(args.length == 1) {
 			autoComplete.add("list");
-			autoComplete.add("tp");
-			if(p.hasPermission("world")) {
+			if(sender instanceof Player)
+				autoComplete.add("tp");
+			
+			if(sender.hasPermission("world")) {
 				autoComplete.add("add");
 				autoComplete.add("remove");
 				autoComplete.add("renew");
@@ -576,7 +583,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			
 			return autoComplete;
 		}else if(args.length == 2) {
-			if(args[0].equals("tp") || (p.hasPermission("world") && (args[0].equals("renew") || args[0].equals("remove")))) {
+			if(((sender instanceof Player) && args[0].equals("tp")) || (sender.hasPermission("world") &&
+			(args[0].equals("renew") || args[0].equals("remove")))) {
 				String start = args[1];
 				
 				String[] worlds = plugin.getSaveConfig().getString("worlds").split("#");
@@ -587,7 +595,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					autoComplete.add(world);
 				}
-			}else if(p.hasPermission("world") && (args[0].equals("set_join_gamemode") ||
+			}else if(sender.hasPermission("world") && (args[0].equals("set_join_gamemode") ||
 			args[0].equals("set_permission") || args[0].equals("set_allowed_gamemodes") || args[0].equals("set_time") ||
 			args[0].equals("set_difficulty"))) {
 				String start = args[1];
@@ -602,14 +610,14 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				
 				if(args[0].equals("set_permission"))
 					autoComplete.remove("world");
-			}else if(p.hasPermission("world") && args[0].equals("add")) {
+			}else if(sender.hasPermission("world") && args[0].equals("add")) {
 				return null;
 			}
 			
 			return autoComplete;
 		}else if(args.length == 3) {
 			if(args[0].equals("add")) {
-				if(p.hasPermission("world")) {
+				if(sender.hasPermission("world")) {
 					autoComplete.add("overworld");
 					autoComplete.add("nether");
 					autoComplete.add("the_end");
@@ -617,7 +625,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					return autoComplete;
 				}
 			}else if(args[0].equals("set_join_gamemode")) {
-				if(p.hasPermission("world")) {
+				if(sender.hasPermission("world")) {
 					String start = args[2];
 					if("no_gamemode".startsWith(start))
 						autoComplete.add("no_gamemode");
@@ -631,7 +639,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					return autoComplete;
 				}
 			}else if(args[0].equals("set_permission")) {
-				if(p.hasPermission("world")) {
+				if(sender.hasPermission("world")) {
 					autoComplete.add("enter");
 					autoComplete.add("build");
 					
@@ -642,7 +650,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					return autoComplete;
 				}
 			}else if(args[0].equals("set_time")) {
-				if(p.hasPermission("world")) {
+				if(sender.hasPermission("world")) {
 					autoComplete.add("day");
 					autoComplete.add("noon");
 					autoComplete.add("night");
@@ -655,7 +663,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					return autoComplete;
 				}
 			}else if(args[0].equals("set_difficulty")) {
-				if(p.hasPermission("world")) {
+				if(sender.hasPermission("world")) {
 					for(Difficulty difficulty:Difficulty.values()) {
 						autoComplete.add(difficulty.toString().toLowerCase());
 					}
@@ -669,14 +677,14 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 4) {
 			if(args[0].equals("add")) {
-				if(p.hasPermission("world") && args[2].equals("overworld")) {
+				if(sender.hasPermission("world") && args[2].equals("overworld")) {
 					autoComplete.add("default");
 					autoComplete.add("superflat");
 					
 					return autoComplete;
 				}
 			}else if(args[0].equals("set_permission")) {
-				if(p.hasPermission("world")) {
+				if(sender.hasPermission("world")) {
 					for(PermissionAttachmentInfo perm:sender.getEffectivePermissions()) {
 						String permission = perm.getPermission();
 						if(permission.startsWith(args[3])) {
@@ -693,7 +701,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}else if(args.length == 5) {
 			if(args[0].equals("add")) {
-				if(p.hasPermission("world") && args[3].equals("superflat")) {
+				if(sender.hasPermission("world") && args[3].equals("superflat")) {
 					autoComplete.add("GRASS");
 					autoComplete.add("REDSTONE");
 					autoComplete.add("AIR");
@@ -703,7 +711,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}
 		
-		if(args.length > 2 && p.hasPermission("world") && args[0].equals("set_allowed_gamemodes")) {
+		if(args.length > 2 && sender.hasPermission("world") && args[0].equals("set_allowed_gamemodes")) {
 			String[] gamemodes = Arrays.copyOfRange(args, 2, args.length);
 			
 			for(String gamemode:gamemodes) {
@@ -1782,46 +1790,48 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						return true;
 					}
 				}else if(action.equals("remove")) {
-					String name = args[1];
-					String slotTxt = args[2];
-					int slot;
-					try {
-						slot = Integer.parseInt(slotTxt);
-					}catch(NumberFormatException e) {
-						p.sendMessage(ChatColor.GOLD + slotTxt + ChatColor.RED + " isn't a number!");
+					if(args.length == 3) {
+						String name = args[1];
+						String slotTxt = args[2];
+						int slot;
+						try {
+							slot = Integer.parseInt(slotTxt);
+						}catch(NumberFormatException e) {
+							p.sendMessage(ChatColor.GOLD + slotTxt + ChatColor.RED + " isn't a number!");
+							
+							return true;
+						}
+						
+						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
+						if(!teleporters.contains(name)) {
+							p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
+							" doesn't exsists!");
+							
+							return true;
+						}
+						if(name.equals("positions")) {
+							p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
+							" isn't allowed!");
+							
+							return true;
+						}
+						
+						ConfigurationSection slots = teleporters.getConfigurationSection(name).getConfigurationSection("slots");
+						slot--;
+						if(!slots.getKeys(false).contains(slot + "")) {
+							p.sendMessage(ChatColor.RED + "The slot " + ChatColor.GOLD + (slot + 1) + ChatColor.RED +
+							" doesn't exist!");
+							
+							return true;
+						}
+						slots.set(slot + "", null);
+						plugin.saveSaveConfig();
+						
+						p.sendMessage(ChatColor.GREEN + "The position in slot " + ChatColor.GOLD + (slot + 1) + ChatColor.GREEN +
+						" was successfully removed from the teleporter " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
 						
 						return true;
 					}
-					
-					ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
-					if(!teleporters.contains(name)) {
-						p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-						" doesn't exsists!");
-						
-						return true;
-					}
-					if(name.equals("positions")) {
-						p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
-						" isn't allowed!");
-						
-						return true;
-					}
-					
-					ConfigurationSection slots = teleporters.getConfigurationSection(name).getConfigurationSection("slots");
-					slot--;
-					if(!slots.getKeys(false).contains(slot + "")) {
-						p.sendMessage(ChatColor.RED + "The slot " + ChatColor.GOLD + (slot + 1) + ChatColor.RED +
-						" doesn't exist!");
-						
-						return true;
-					}
-					slots.set(slot + "", null);
-					plugin.saveSaveConfig();
-					
-					p.sendMessage(ChatColor.GREEN + "The position in slot " + ChatColor.GOLD + (slot + 1) + ChatColor.GREEN +
-					" was successfully removed from the teleporter " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
-					
-					return true;
 				}else if(action.equals("add_position")) {
 					if(args.length == 7) {
 						String positionName = args[1];

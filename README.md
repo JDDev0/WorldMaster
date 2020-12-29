@@ -88,7 +88,7 @@ If set to true, all portals will be disabled.<br>
 *chunk_loader*: Enables the whole command /chunk_loader<br>
 *reload_config*: Enables the whole command /reload_config<br>
 *inventory*: Enables the whole command /inventory<br>
-*build_spawn*: Emables the building in the spawn world<br>
+*build_spawn*: Enables the building in the spawn world<br>
 *shop_owner*: Enables the creation of shops<br>
 *command_block*: If the permission isn't set, the player can't use command blocks<br>
 
