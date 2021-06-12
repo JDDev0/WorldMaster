@@ -27,6 +27,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.jddev0.Plugin;
+import me.jddev0.utils.ChatUtils;
 
 public class ShopEvent implements Listener {
 	private Plugin plugin;
@@ -46,7 +47,7 @@ public class ShopEvent implements Listener {
 			if(chestBlock.getType() == Material.CHEST) {
 				if(event.getLine(0).equals("[Shop]")) {
 					if(!p.hasPermission("shop_owner")) {
-						p.sendMessage(ChatColor.RED + "You haven't enough rights to build a shop!");
+						p.sendMessage(ChatUtils.colorMessage(false, "You haven't enough rights to build a shop!"));
 						
 						return;
 					}
@@ -55,8 +56,7 @@ public class ShopEvent implements Listener {
 					String pos = chestBlock.getWorld().getName() + "." + chestBlock.getX() + "." + chestBlock.getY() + "." +
 					chestBlock.getZ();
 					if(shops.contains(pos)) {
-						p.sendMessage(ChatColor.RED + "The shop with the ID " + ChatColor.GOLD + pos + ChatColor.RED +
-						" already exists!");
+						p.sendMessage(ChatUtils.colorMessage(false, "The shop with the ID ", pos, " already exists!"));
 						
 						return;
 					}
@@ -88,7 +88,7 @@ public class ShopEvent implements Listener {
 					}
 					chestInv.clear();
 					
-					p.sendMessage(ChatColor.GREEN + "The shop was successfully created!");
+					p.sendMessage(ChatUtils.colorMessage(true, "The shop was successfully created!"));
 					plugin.saveSaveConfig();
 					
 					block.setType(Material.AIR);
@@ -113,7 +113,7 @@ public class ShopEvent implements Listener {
 					}
 				}
 			
-				p.sendMessage(ChatColor.GREEN + "The shop was successfully removed!");
+				p.sendMessage(ChatUtils.colorMessage(true, "The shop was successfully removed!"));
 				
 				shops.set(pos, null);
 				if(shops.getConfigurationSection(block.getWorld().getName() + "." + block.getX() + "." + block.getY()).
@@ -131,7 +131,7 @@ public class ShopEvent implements Listener {
 				}
 				plugin.saveSaveConfig();
 			}else {
-				p.sendMessage(ChatColor.RED + "You aren't the owener of the Shop!");
+				p.sendMessage(ChatUtils.colorMessage(false, "You aren't the owener of the Shop!"));
 				
 				event.setCancelled(true);
 				return;
@@ -154,7 +154,7 @@ public class ShopEvent implements Listener {
 			event.setCancelled(true);
 			
 			if(playersInShopInv.containsKey(pos)) {
-				p.sendMessage(ChatColor.RED + "Another player is already using the shop!");
+				p.sendMessage(ChatUtils.colorMessage(false, "Another player is already using the shop!"));
 				
 				return;
 			}

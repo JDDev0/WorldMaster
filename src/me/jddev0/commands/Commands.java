@@ -45,6 +45,7 @@ import me.jddev0.Plugin;
 import me.jddev0.items.ItemChunkLoader;
 import me.jddev0.items.ItemElevatorSelector;
 import me.jddev0.items.ItemTeleporter;
+import me.jddev0.utils.ChatUtils;
 import me.jddev0.world.creator.WorldMasterWorldCreator;
 
 public class Commands implements Listener, TabCompleter, CommandExecutor {
@@ -77,7 +78,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	}
 	private boolean execCmdWorld(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!(sender instanceof Player) && !(sender instanceof ConsoleCommandSender)) {
-			sender.sendMessage(ChatColor.RED + "Only players or the server console can use this command!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "Only players or the server console can use this command!"));
 			
 			return true;
 		}
@@ -101,13 +102,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				
 				if(action.equals("remove")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
 					
 					if(name.equals("spawn") || name.equals("nether") || name.equals("the_end")) {
-						sender.sendMessage(ChatColor.RED + name + " is not allowed!");
+						sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " is not allowed!"));
 							
 						return true;
 					}
@@ -131,7 +132,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							//TP all players in world to spawn
 							List<Player> players = worldDelete.getPlayers();
 							players.forEach(player -> {
-								player.sendMessage(ChatColor.RED + "This world (" + name + ") will be removed soon!");
+								player.sendMessage(ChatUtils.colorMessage(false, "This world (", name,
+								") will be removed soon!"));
 								
 								World worldTp = Bukkit.getWorld("world");
 								Location pos = worldTp.getSpawnLocation();
@@ -145,24 +147,24 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							File worldDeleteFolder = worldDelete.getWorldFolder();
 							deleteWorld(worldDeleteFolder);
 							
-							sender.sendMessage("World " + name + " was successfully removed!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "World ", name, " was successfully removed!"));
 							
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 					
 					return true;
 				}else if(action.equals("renew")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
 					
 					if(name.equals("spawn") || name.equals("nether") || name.equals("the_end")) {
-						sender.sendMessage(ChatColor.RED + name + " is not allowed!");
+						sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, "is not allowed!"));
 							
 						return true;
 					}
@@ -185,7 +187,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							//TP all players in world to spawn
 							List<Player> players = worldRegenerate.getPlayers();
 							players.forEach(player -> {
-								player.sendMessage(ChatColor.RED + "This world (" + name + ") will be regenerated soon!");
+								player.sendMessage(ChatUtils.colorMessage(false, "This world (", name,
+								") will be regenerated soon!"));
 								
 								World worldTp = Bukkit.getWorld("world");
 								Location pos = worldTp.getSpawnLocation();
@@ -213,18 +216,18 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							plugin.getSaveConfig().set("worlds", plugin.getSaveConfig().getString("worlds") + "#" + name);
 							plugin.saveSaveConfig();
 							
-							sender.sendMessage("World " + name + " was successfully regenerated!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "World ", name, " was successfully regenerated!"));
 							
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 					
 					return true;
 				}else if(action.equals("tp")) {
 					if(!(sender instanceof Player)) {
-						sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "Only players can use this command!"));
 						
 						return true;
 					}
@@ -236,13 +239,14 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							World worldTp = Bukkit.getWorld(name.equals("spawn")?"world":("world_" + name));
 							p.teleport(worldTp.getSpawnLocation());
 							
-							sender.sendMessage(p.getDisplayName() + " was teleported to " + name + "!");
+							sender.sendMessage(ChatUtils.colorMessageStartingWithValue(true, p.getDisplayName(),
+							" was teleported to ", name, "!"));
 							
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 					
 					return true;
 				}
@@ -251,7 +255,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				
 				if(action.equals("set_join_gamemode")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
@@ -266,7 +270,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 								GameMode.valueOf(gamemode.toUpperCase());
 							}catch(Exception e) {
 								if(!gamemode.equals("no_gamemode")) {
-									sender.sendMessage(ChatColor.RED + gamemode + " wasn't found!");
+									sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, gamemode,
+									" wasn't found!"));
 									
 									return true;
 								}
@@ -289,18 +294,17 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							}
 							plugin.saveSaveConfig();
 							
-							sender.sendMessage("The join gamemode of the world " + name + " was successfully changed to " +
-							gamemode + "!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "The join gamemode of the world ", name,
+							" was successfully changed to ", gamemode, "!"));
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
-					
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 					return true;
 				}else if(action.equals("set_time")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
@@ -319,7 +323,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						}else if(timeRaw.equals("midnight")) {
 							time = 18000;
 						}else {
-							sender.sendMessage(ChatColor.RED + "Time has do be a number!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "Time has do be a number!"));
 							
 							return true;
 						}
@@ -331,17 +335,18 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						if(name.equals(worldName)) {
 							world.setFullTime(time);
 							
-							sender.sendMessage("The time of the world " + name + " was successfully changed to " + time + "!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "The time of the world ", name,
+							" was successfully changed to ", time, "!"));
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 					
 					return true;
 				}else if(action.equals("set_difficulty")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
@@ -349,7 +354,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					String difficultyRaw = args[2];
 					Difficulty difficulty = Difficulty.valueOf(difficultyRaw.toUpperCase());
 					if(difficulty == null) {
-						sender.sendMessage(ChatColor.RED + "The difficulty " + difficultyRaw + " doesn't exist!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "The difficulty ", difficultyRaw, " doesn't exist!"));
 						return true;
 					}
 					
@@ -359,12 +364,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						if(name.equals(worldName)) {
 							world.setDifficulty(difficulty);
 							
-							sender.sendMessage("The difficulty of the world " + name + " was successfully changed to " + difficultyRaw + "!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "The difficulty of the world ", name,
+							" was successfully changed to ", difficultyRaw, "!"));
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 					
 					return true;
 				}
@@ -375,13 +381,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				
 				if(action.equals("set_permission")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
 					
 					if(name.equals("world")) {
-						sender.sendMessage(ChatColor.RED + name + " isn't allowed!");
+						sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " isn't allowed!"));
 						
 						return true;
 					}
@@ -417,19 +423,19 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 									}catch(IllegalArgumentException e) {}
 								}
 							}else {
-								sender.sendMessage(ChatColor.RED + type + " isn't allowed!");
+								sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, type, " isn't allowed!"));
 								
 								return true;
 							}
 							plugin.saveSaveConfig();
 							
-							sender.sendMessage("The " + type + " permission of the world " + name + " was successfully set to " +
-							permission + "!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "The " + type + " permission of the world ",
+							name, " was successfully set to ", permission, "!"));
 							return true;
 						}
 					}
 					
-					sender.sendMessage(ChatColor.RED + name + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " wasn't found!"));
 				}
 			}
 			
@@ -439,12 +445,12 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					if(action.equals("add")) {
 						if(!sender.hasPermission("world")) {
-							sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 							
 							return true;
 						}
 						if(!name.matches("[0-9a-zA-Z_]*") || name.equals("nether") || name.equals("the_end")) {
-							sender.sendMessage(ChatColor.RED + name + " is not allowed!");
+							sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " is not allowed!"));
 								
 							return true;
 						}
@@ -452,7 +458,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						String[] worlds = plugin.getSaveConfig().getString("worlds").split("#");
 						for(String worldName:worlds) {
 							if(worldName.equalsIgnoreCase(name)) {
-								sender.sendMessage(ChatColor.RED + name + " already exist!");
+								sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, name, " already exist!"));
 								
 								return true;
 							}
@@ -470,7 +476,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						WorldMasterWorldCreator creator = new WorldMasterWorldCreator("world_" + name, WorldMasterWorldCreator.
 						convertDimension(dimension), WorldMasterWorldCreator.convertType(type), blocks);
-						sender.sendMessage("Creating world " + name + "!");
+						sender.sendMessage(ChatUtils.colorMessage(null, "Creating world ", ChatColor.GOLD, name,
+						ChatColor.RESET, "!"));
 						
 						World world = creator.createWorld();
 						world.save();
@@ -487,7 +494,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						plugin.saveSaveConfig();
 						
-						sender.sendMessage("World " + name + " was successfully created and added to world list!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "World ", name,
+						" was successfully created and added to world list!"));
 						
 						return true;
 					}
@@ -501,7 +509,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				
 				if(action.equals("set_allowed_gamemodes")) {
 					if(!sender.hasPermission("world")) {
-						sender.sendMessage(ChatColor.RED + "You haven't enought rights!");
+						sender.sendMessage(ChatUtils.colorMessage(false, "You haven't enought rights!"));
 						
 						return true;
 					}
@@ -522,7 +530,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							}
 							plugin.saveSaveConfig();
 							
-							sender.sendMessage("All gamemodes are now allowed in the world " + worldName + "!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "All gamemodes are now allowed in the world ",
+							worldName, "!"));
 							return true;
 						}
 							
@@ -530,7 +539,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							GameMode.valueOf(gamemode.toUpperCase());
 						}catch(Exception e) {
 							if(!gamemode.equals("no_gamemode")) {
-								sender.sendMessage(ChatColor.RED + gamemode + " wasn't found!");
+								sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, gamemode, " wasn't found!"));
 								
 								return true;
 							}
@@ -543,7 +552,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					allowedGamemodes.set(worldName, gamemodeList);
 					plugin.saveSaveConfig();
 					
-					sender.sendMessage("The allowed gamemodes of the world " + worldName + " was successfully changed!");
+					sender.sendMessage(ChatUtils.colorMessage(true, "The allowed gamemodes of the world ", worldName,
+					" were successfully changed!"));
 					return true;
 				}
 			}
@@ -743,7 +753,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	
 	private boolean execCmdPermission(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!sender.hasPermission("permission") || !(sender instanceof Player || sender instanceof ConsoleCommandSender)) {
-			sender.sendMessage(ChatColor.RED + "You haven't the permission for this command!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "You haven't the permission for this command!"));
 			return true;
 		}
 		
@@ -761,7 +771,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}
 				
 				if(uuid == null) {
-					sender.sendMessage("The player with the name " + args[1] + " doesn't exists!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The player with the name ", args[1],
+					" doesn't exists!"));
 					
 					return true;
 				}
@@ -814,7 +825,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					plugin.saveSaveConfig();
 				}
 				
-				sender.sendMessage("The value of " + permission + " of " + args[1] + " is now set to true!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The value of ", permission, " of ", args[1],
+				" is now set to ", "true", "!"));
 				
 				return true;
 			}else if(args[0].equals("disallow")) {
@@ -862,8 +874,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					plugin.saveSaveConfig();
 				}
 				
-				sender.sendMessage("The value of " + permission + " of " + args[1] + " is now set to false!");
-				
+				sender.sendMessage(ChatUtils.colorMessage(true, "The value of ", permission, " of ", args[1],
+				" is now set to ", "false", "!"));
 				return true;
 			}else if(args[0].equals("default")) {
 				if(plugin.permissions.containsKey(uuid)) {
@@ -904,8 +916,9 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					}
 					plugin.saveSaveConfig();
 				}
-				sender.sendMessage("The value of " + permission + " of " + args[1] + " is now set to default!");
 				
+				sender.sendMessage(ChatUtils.colorMessage(true, "The value of ", permission, " of ", args[1],
+				" is now set to ", "default", "!"));
 				return true;
 			}
 		}
@@ -1150,7 +1163,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	}
 	private boolean execCmdElevator(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!(sender instanceof Player)) {
-			sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "Only players can use this command!"));
 			
 			return true;
 		}
@@ -1163,25 +1176,23 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				if(args.length == 2) {
 					String elevatorName = getNearestElevator(p);
 					if(elevatorName == null) {
-						p.sendMessage(ChatColor.RED + "No elevator was found near to you!");
+						p.sendMessage(ChatUtils.colorMessage(false, "No elevator was found near to you!"));
 						return true;
 					}
 					ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 					ConfigurationSection elevator = elevators.getConfigurationSection(elevatorName);
 					if(!elevator.contains("floors")) {
-						p.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + elevatorName + ChatColor.RED +
-						" hasn't floors!");
+						p.sendMessage(ChatUtils.colorMessage(false, "Elevator ", elevatorName, " hasn't floors!"));
 						return true;
 					}
 					ConfigurationSection floors = elevator.getConfigurationSection("floors");
 					if(!floors.contains(args[1])) {
-						p.sendMessage(ChatColor.RED + "Floor " + ChatColor.GOLD + args[1] + ChatColor.RED + " dosen't exist!");
+						p.sendMessage(ChatUtils.colorMessage(false, "The Floor ", args[1], " dosen't exist!"));
 						return true;
 					}
 					if(floors.contains("permission." + args[1]) && !p.hasPermission(floors.getString("permission." + args[1]))) {
-						p.sendMessage(ChatColor.RED + "You need the permission " + ChatColor.GOLD + floors.getString(
-						"permission." + args[1]) + ChatColor.RED + " to go to floor " + ChatColor.GOLD + args[1] + ChatColor.RED +
-						"!");
+						p.sendMessage(ChatUtils.colorMessage(false, "You need the permission ", floors.getString(
+						"permission." + args[1]), " to go to floor ", args[1], "!"));
 						return true;
 					}
 					
@@ -1197,15 +1208,14 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					});
 					
 					if(elevator.getBoolean("moving")) {
-						p.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + elevatorName + ChatColor.RED +
-						" is moving already!");
+						p.sendMessage(ChatUtils.colorMessage(false, "The elevator ", elevatorName, " is already moving!"));
 						return true;
 					}
 					
 					if(actualFloor[0] != null) {
 						if(actualFloor[0].equals(args[1])) {
-							p.sendMessage(ChatColor.RED + "The elevator " + ChatColor.GOLD + elevatorName + ChatColor.RED +
-							" is already on floor " + ChatColor.GOLD + args[1] + ChatColor.RED + "!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The elevator ", elevatorName,
+							" is already on the floor ", args[1], "!"));
 							return true;
 						}
 						//Close door
@@ -1233,7 +1243,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				if(action.equals("make")) {
 					if(args.length == 1) {
 						if(elevatorBlocks.containsKey(p.getUniqueId())) {
-							sender.sendMessage(ChatColor.RED + "You are already constructing an elevator!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "You are already constructing an elevator!"));
 							return true;
 						}
 						
@@ -1247,14 +1257,15 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}else if(action.equals("create")) {
 					if(args.length == 3) {
 						if(!elevatorBlocks.containsKey(p.getUniqueId())) {
-							sender.sendMessage(ChatColor.RED + "You have to select blocks with " + ChatColor.GOLD +
-							" /elevator make" + ChatColor.RED + "!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "You have to select blocks with ",
+							" /elevator make", "!"));
 							return true;
 						}
 						
 						List<Location> elevatorBlocks = this.elevatorBlocks.get(p.getUniqueId());
 						if(elevatorBlocks.size() == 0) {
-							sender.sendMessage(ChatColor.RED + "You have to select blocks with the selector stick!");
+							sender.sendMessage(ChatUtils.colorMessage(false,
+							"You have to select blocks with the selector stick!"));
 							return true;
 						}
 						
@@ -1263,31 +1274,31 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						try {
 							floorHeight = Integer.parseInt(args[2]);
 						}catch (NumberFormatException e) {
-							sender.sendMessage(ChatColor.RED + "Height has to be a number!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "Height has to be a number!"));
 							return true;
 						}
 						
 						if(floorHeight < 0) {
-							sender.sendMessage(ChatColor.RED + "Height has to be a positive number!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "Height has to be a positive number!"));
 							return true;
 						}
 						World world = elevatorBlocks.get(0).getWorld();
 						if(floorHeight >= world.getMaxHeight()) {
-							sender.sendMessage(ChatColor.RED + "Floor height is to big! Maximum: " + ChatColor.GOLD +
-							(world.getMaxHeight() - 1));
+							sender.sendMessage(ChatUtils.colorMessage(false, "Floor height is to big! Maximum: ",
+							ChatColor.GOLD, world.getMaxHeight() - 1));
 							return true;
 						}
 						
 						ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 						if(elevators.contains(name)) {
-							sender.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + name + ChatColor.RED +
-							" already exist!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Elevator ", name," already exist!"));
 							return true;
 						}
 						
 						for(Location block:elevatorBlocks) {
 							if(!block.getWorld().getName().equals(world.getName())) {
-								sender.sendMessage(ChatColor.RED + "Blocks of elevator are in different worlds!");
+								sender.sendMessage(ChatUtils.colorMessage(false,
+								"Blocks of elevator are in different worlds!"));
 								return true;
 							}
 						}
@@ -1305,9 +1316,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						removeElevatorSelector(p);
 						removePlayerFromElevatorBlocks(p);
 						
-						sender.sendMessage(ChatColor.GREEN + "Elevator " + ChatColor.GOLD + name + ChatColor.GREEN +
-						" was successfully created with " + ChatColor.GOLD + elevatorBlocks.size() + ChatColor.GREEN +
-						" blocks!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "The Elevator ", name,
+						" was successfully created with ", elevatorBlocks.size(), " blocks!"));
 						return true;
 					}
 				}else if(action.equals("remove")) {
@@ -1318,12 +1328,11 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							elevators.set(name, null);
 							plugin.saveSaveConfig();
 							
-							sender.sendMessage(ChatColor.GREEN + "Elevator " + ChatColor.GOLD + name + ChatColor.GREEN +
-							" was successfully removed!");
+							sender.sendMessage(ChatUtils.colorMessage(true, "The Elevator ", name,
+							" was successfully removed!"));
 							return true;
 						}else {
-							sender.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + name + ChatColor.RED +
-							" doesn't exist!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Elevator ", name, " doesn't exist!"));
 							return true;
 						}
 					}
@@ -1332,8 +1341,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						String elevatorName = args[1];
 						ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 						if(!elevators.contains(elevatorName)) {
-							sender.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + elevatorName + ChatColor.RED +
-							" doesn't exist!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Elevator ", elevatorName,
+							" doesn't exist!"));
 							return true;
 						}
 						ConfigurationSection elevator = elevators.getConfigurationSection(elevatorName);
@@ -1342,14 +1351,12 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						String floorName = args[2];
 						if(elevator.contains("floors")) {
 							if(elevator.getConfigurationSection("floors").contains(floorName)) {
-								sender.sendMessage(ChatColor.RED + "Floor " + ChatColor.GOLD + floorName + ChatColor.RED +
-								" already exist!");
+								sender.sendMessage(ChatUtils.colorMessage(false, "The Floor ", floorName, " already exist!"));
 								return true;
 							}
 						}
 						if(floorName.equals("permission")) {
-							sender.sendMessage(ChatColor.RED + "Name " + ChatColor.GOLD + floorName + ChatColor.RED +
-							" isn't allowed!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Name ", floorName, " isn't allowed!"));
 							return true;
 						}
 						
@@ -1358,24 +1365,25 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							try {
 								doorPos[i] = Integer.parseInt(args[3 + i]);
 							}catch (NumberFormatException e) {
-								sender.sendMessage(ChatColor.GOLD + args[3 + i] + ChatColor.RED + " isn't a number!");
+								sender.sendMessage(ChatUtils.colorMessageStartingWithValue(false, args[3 + i],
+								" isn't a number!"));
 								return true;
 							}
 						}
 						if(doorPos[1] < 0) {
-							sender.sendMessage(ChatColor.RED + "Height has to be a positive number!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "Height has to be a positive number!"));
 							return true;
 						}
 						if(doorPos[1] >= world.getMaxHeight()) {
-							sender.sendMessage(ChatColor.RED + "Height is to big! Maximum: " +
-							(world.getMaxHeight() - 1));
+							sender.sendMessage(ChatUtils.colorMessage(false, "Height is to big! Maximum: ",
+							world.getMaxHeight() - 1));
 							return true;
 						}
 						
 						Block block = world.getBlockAt(doorPos[0], doorPos[1], doorPos[2]);
 						if(block.getType() != Material.IRON_DOOR) {
-							sender.sendMessage(ChatColor.RED + "At the location " + ChatColor.GOLD + doorPos[0] + " " +
-							doorPos[1] + " " + doorPos[2] + ChatColor.RED + " is no iron door!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "At the location ", doorPos[0] + " " +
+							doorPos[1] + " " + doorPos[2], " is no iron door!"));
 							return true;
 						}
 						
@@ -1409,8 +1417,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						}
 						plugin.saveSaveConfig();
 						
-						sender.sendMessage(ChatColor.GREEN + "Floor " + ChatColor.GOLD + floorName + ChatColor.GREEN +
-						" was successfully added to elevator " + ChatColor.GOLD + elevatorName + ChatColor.GREEN + "!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "The Floor ", floorName,
+						" was successfully added to the elevator ", elevatorName, "!"));
 						return true;
 					}
 				}else if(action.equals("remove_floor")) {
@@ -1418,16 +1426,15 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						String elevatorName = args[1];
 						ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 						if(!elevators.contains(elevatorName)) {
-							sender.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + elevatorName + ChatColor.RED +
-							" doesn't exist!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Elevator ", elevatorName,
+							" doesn't exist!"));
 							return true;
 						}
 						ConfigurationSection elevator = elevators.getConfigurationSection(elevatorName);
 						String floorName = args[2];
 						if(floorName.equals("permission") || !elevator.contains("floors") || !elevator.
 						getConfigurationSection("floors").contains(floorName)) {
-							sender.sendMessage(ChatColor.RED + "Floor " + ChatColor.GOLD + floorName + ChatColor.RED +
-							" dosen't exist!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Floor ", floorName, " dosen't exist!"));
 							return true;
 						}
 						
@@ -1442,8 +1449,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							elevator.set("floors", null);
 						plugin.saveSaveConfig();
 						
-						sender.sendMessage(ChatColor.GREEN + "Floor " + ChatColor.GOLD + floorName + ChatColor.GREEN +
-						" was successfully removed from elevator " + ChatColor.GOLD + elevatorName + ChatColor.GREEN + "!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "The Floor ", floorName,
+						" was successfully removed from the elevator ", elevatorName, "!"));
 						return true;
 					}
 				}else if(action.equals("set_speed")) {
@@ -1451,8 +1458,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						String elevatorName = args[1];
 						ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 						if(!elevators.contains(elevatorName)) {
-							sender.sendMessage(ChatColor.RED + "Elevator " + ChatColor.GOLD + elevatorName + ChatColor.RED +
-							" doesn't exist!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "The Elevator ", elevatorName, "doesn't exist!"));
 							return true;
 						}
 						ConfigurationSection elevator = elevators.getConfigurationSection(elevatorName);
@@ -1461,27 +1467,26 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						try {
 							speed = Double.parseDouble(args[2]);
 						}catch (NumberFormatException e) {
-							sender.sendMessage(ChatColor.RED + "Speed has to be a number!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "Speed has to be a number!"));
 							return true;
 						}
 						
 						if(speed <= 0) {
-							sender.sendMessage(ChatColor.RED + "Speed has to be larger than 0!");
+							sender.sendMessage(ChatUtils.colorMessage(false, "Speed has to be larger than 0!"));
 							return true;
 						}
 						
 						elevator.set("speed", speed);
 						plugin.saveSaveConfig();
 						
-						sender.sendMessage(ChatColor.GREEN + "The speed of elevator " + ChatColor.GOLD + elevatorName +
-						ChatColor.GREEN + " was successfully changed to " + ChatColor.GOLD + speed + " blocks/sec" +
-						ChatColor.GREEN + "!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "The speed of the elevator ", elevatorName,
+						" was successfully changed to ", speed + " blocks/sec" , "!"));
 						return true;
 					}
 				}
 			}else if(!action.equals("move")) {
-				sender.sendMessage(ChatColor.RED + "You haven't the permission to call " + ChatColor.GOLD + " /elevator " +
-				action + ChatColor.RED + "!");
+				sender.sendMessage(ChatUtils.colorMessage(false, "You haven't the permission to call ", " /elevator " +
+				action, "!"));
 				return true;
 			}
 		}
@@ -1518,13 +1523,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			if(args[0].equals("move")) {
 				String elevatorName = getNearestElevator(p);
 				if(elevatorName == null) {
-					autoComplete.add(ChatColor.RED + "No elevator was found near to you!");
+					autoComplete.add(ChatUtils.colorMessage(false, "No elevator was found near to you!"));
 					return autoComplete;
 				}
 				ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 				ConfigurationSection elevator = elevators.getConfigurationSection(elevatorName);
 				if(!elevator.contains("floors")) {
-					autoComplete.add(ChatColor.RED + "Elevator " + elevatorName + " hasn't floors!");
+					autoComplete.add(ChatUtils.colorMessage(false, "The Elevator ", elevatorName, " hasn't floors!"));
 					return autoComplete;
 				}
 				ConfigurationSection floors = elevator.getConfigurationSection("floors");
@@ -1567,12 +1572,12 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				if(args[0].equals("remove_floor")) {
 					ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
 					if(!elevators.contains(args[1])) {
-						autoComplete.add(ChatColor.RED + "Elevator " + args[1] + " doesn't exist!");
+						autoComplete.add(ChatUtils.colorMessage(false, "The Elevator ", args[1], " doesn't exist!"));
 						return autoComplete;
 					}
 					ConfigurationSection elevator = elevators.getConfigurationSection(args[1]);
 					if(!elevator.contains("floors")) {
-						autoComplete.add(ChatColor.RED + "Elevator " + args[1] + " hasn't floors!");
+						autoComplete.add(ChatUtils.colorMessage(false, "The Elevator ", args[1], " hasn't floors!"));
 						return autoComplete;
 					}
 					ConfigurationSection floors = elevator.getConfigurationSection("floors");
@@ -1634,7 +1639,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	
 	private boolean execCmdTeleporter(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!(sender instanceof Player)) {
-			sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "Only players can use this command!"));
 			
 			return true;
 		}
@@ -1649,15 +1654,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 					if(!teleporters.contains(name)) {
-						p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-						" doesn't exsists!");
+						p.sendMessage(ChatUtils.colorMessage(false, "The teleporter ", name, " doesn't exsists!"));
 						
 						return true;
 					}
 					
 					if(name.equals("positions")) {
-						p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
-						" isn't allowed!");
+						p.sendMessage(ChatUtils.colorMessage(false, "The name ", name, " isn't allowed!"));
 						
 						return true;
 					}
@@ -1677,23 +1680,20 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						Material m = Material.matchMaterial(icon);
 						if(m == null || m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir()) {
-							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The icon ", icon, " doesn't exsists!"));
 							
 							return true;
 						}
 						
 						if(name.equals("positions")) {
-							p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
-							" isn't allowed!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The name ", name, "isn't allowed!"));
 							
 							return true;
 						}
 						
 						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 						if(teleporters.contains(name)) {
-							p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-							" already exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The teleporter ", name + " already exsists!"));
 							
 							return true;
 						}
@@ -1703,8 +1703,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						teleporter.createSection("slots");
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The teleporter " + ChatColor.GOLD + name + ChatColor.GREEN +
-						" with the icon " + ChatColor.GOLD + icon + ChatColor.GREEN + " was successfully created!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The teleporter ", name, " with the icon ",
+						icon, " was successfully created!"));
 						
 						return true;
 					}
@@ -1714,15 +1714,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 						if(!teleporters.contains(name)) {
-							p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The teleporter ", name, " doesn't exsists!"));
 							
 							return true;
 						}
 						
 						if(name.equals("positions")) {
-							p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
-							" isn't allowed!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The name ", name, " isn't allowed!"));
 							
 							return true;
 						}
@@ -1730,8 +1728,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						teleporters.set(name, null);
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The teleporter " + ChatColor.GOLD + name + ChatColor.GREEN +
-						" was successfully deleted!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The teleporter ", name, " was successfully deleted!"));
 						
 						return true;
 					}
@@ -1744,38 +1741,35 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						try {
 							slot = Integer.parseInt(slotTxt);
 						}catch(NumberFormatException e) {
-							p.sendMessage(ChatColor.GOLD + slotTxt + ChatColor.RED + " isn't a number!");
+							p.sendMessage(ChatUtils.colorMessageStartingWithValue(false, slotTxt, " isn't a number!"));
 							
 							return true;
 						}
 						
 						if(slot < 1 || slot > 55) {
-							p.sendMessage(ChatColor.RED + "Slot " + ChatColor.GOLD + slot + ChatColor.RED + " doesn't exist!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The slot ", slot, " doesn't exist!"));
 						}
 						slot--;
 						
 						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 						if(!teleporters.contains(name)) {
-							p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The teleporter ", name, " doesn't exsists!"));
 							
 							return true;
 						}
 						if(name.equals("positions")) {
-							p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
-							" isn't allowed!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The name ", name, " isn't allowed!"));
 							
 							return true;
 						}
 						if(!teleporters.contains("positions")) {
-							p.sendMessage(ChatColor.RED + "There aren't any positions!");
+							p.sendMessage(ChatUtils.colorMessage(false, "There aren't any positions!"));
 							
 							return true;
 						}
 						ConfigurationSection positions = teleporters.getConfigurationSection("positions");
 						if(!positions.contains(positionName)) {
-							p.sendMessage(ChatColor.RED + "The position " + ChatColor.GOLD + positionName + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The position ", positionName, " doesn't exsists!"));
 							
 							return true;
 						}
@@ -1784,8 +1778,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						slots.set("" + slot, positionName);
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The position " + ChatColor.GOLD + positionName + ChatColor.GREEN +
-						" was successfully added to the teleporter " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The position ", positionName,
+						" was successfully added to the teleporter ", name, "!"));
 						
 						return true;
 					}
@@ -1797,21 +1791,19 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						try {
 							slot = Integer.parseInt(slotTxt);
 						}catch(NumberFormatException e) {
-							p.sendMessage(ChatColor.GOLD + slotTxt + ChatColor.RED + " isn't a number!");
+							p.sendMessage(ChatUtils.colorMessageStartingWithValue(false, slotTxt, " isn't a number!"));
 							
 							return true;
 						}
 						
 						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 						if(!teleporters.contains(name)) {
-							p.sendMessage(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The teleporter ", name, " doesn't exsists!"));
 							
 							return true;
 						}
 						if(name.equals("positions")) {
-							p.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED +
-							" isn't allowed!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The name ", name, " isn't allowed!"));
 							
 							return true;
 						}
@@ -1819,16 +1811,15 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						ConfigurationSection slots = teleporters.getConfigurationSection(name).getConfigurationSection("slots");
 						slot--;
 						if(!slots.getKeys(false).contains(slot + "")) {
-							p.sendMessage(ChatColor.RED + "The slot " + ChatColor.GOLD + (slot + 1) + ChatColor.RED +
-							" doesn't exist!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The slot ", slot + 1, " doesn't exist!"));
 							
 							return true;
 						}
 						slots.set(slot + "", null);
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The position in slot " + ChatColor.GOLD + (slot + 1) + ChatColor.GREEN +
-						" was successfully removed from the teleporter " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The position in slot ", slot + 1,
+						" was successfully removed from the teleporter ", name, "!"));
 						
 						return true;
 					}
@@ -1843,7 +1834,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							try {
 								coords[i] = Double.parseDouble(coordsTxt[i]);
 							}catch(NumberFormatException e) {
-								p.sendMessage(ChatColor.GOLD + coordsTxt[i] + ChatColor.RED + " isn't a number!");
+								p.sendMessage(ChatUtils.colorMessageStartingWithValue(false, coordsTxt[i],
+								" isn't a number!"));
 								
 								return true;
 							}
@@ -1851,14 +1843,12 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						Material m = Material.matchMaterial(icon);
 						if(m == null || m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir()) {
-							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The icon ", icon, " doesn't exsists!"));
 							
 							return true;
 						}
 						if(plugin.getServer().getWorld(world) == null) {
-							p.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + world + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The world ", world, " doesn't exsists!"));
 							
 							return true;
 						}
@@ -1871,8 +1861,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							positions = teleporters.createSection("positions");
 						
 						if(positions.contains(positionName)) {
-							p.sendMessage(ChatColor.RED + "The position " + ChatColor.GOLD + positionName + ChatColor.RED +
-							" already exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The position ", positionName, " already exsists!"));
 							
 							return true;
 						}
@@ -1883,8 +1872,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						position.set("pos", new Vector(coords[0], coords[1], coords[2]));
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The position " + ChatColor.GOLD + positionName + ChatColor.GREEN +
-						" with the icon " + ChatColor.GOLD + icon + ChatColor.GREEN + " was successfully created!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The position ", positionName, " with the icon ",
+						icon, " was successfully created!"));
 						
 						return true;
 					}
@@ -1899,7 +1888,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							try {
 								coords[i] = Double.parseDouble(coordsTxt[i]);
 							}catch(NumberFormatException e) {
-								p.sendMessage(ChatColor.GOLD + coordsTxt[i] + ChatColor.RED + " isn't a number!");
+								p.sendMessage(ChatUtils.colorMessageStartingWithValue(false, coordsTxt[i],
+								" isn't a number!"));
 								
 								return true;
 							}
@@ -1907,28 +1897,25 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						Material m = Material.matchMaterial(icon);
 						if(m == null || m.toString().startsWith("LEGACY_") || !m.isItem() || m.isAir()) {
-							p.sendMessage(ChatColor.RED + "The icon " + ChatColor.GOLD + icon + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The icon ", icon, " doesn't exsists!"));
 							
 							return true;
 						}
 						if(plugin.getServer().getWorld(world) == null) {
-							p.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + world + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The world ", world, " doesn't exsists!"));
 							
 							return true;
 						}
 						
 						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 						if(!teleporters.contains("positions")) {
-							p.sendMessage(ChatColor.RED + "There aren't any positions!");
+							p.sendMessage(ChatUtils.colorMessage(false, "There aren't any positions!"));
 							
 							return true;
 						}
 						ConfigurationSection positions = teleporters.getConfigurationSection("positions");
 						if(!positions.contains(positionName)) {
-							p.sendMessage(ChatColor.RED + "The position " + ChatColor.GOLD + positionName + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The position ", positionName, " doesn't exsists!"));
 							
 							return true;
 						}
@@ -1939,8 +1926,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						position.set("pos", new Vector(coords[0], coords[1], coords[2]));
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The position " + ChatColor.GOLD + positionName + ChatColor.GREEN +
-						" was successfully updated!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The position ", positionName,
+						" was successfully updated!"));
 						
 						return true;
 					}
@@ -1950,14 +1937,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						
 						ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 						if(!teleporters.contains("positions")) {
-							p.sendMessage(ChatColor.RED + "There aren't any positions!");
+							p.sendMessage(ChatUtils.colorMessage(false, "There aren't any positions!"));
 							
 							return true;
 						}
 						ConfigurationSection positions = teleporters.getConfigurationSection("positions");
 						if(!positions.contains(positionName)) {
-							p.sendMessage(ChatColor.RED + "The position " + ChatColor.GOLD + positionName + ChatColor.RED +
-							" doesn't exsists!");
+							p.sendMessage(ChatUtils.colorMessage(false, "The position ", positionName, " doesn't exsists!"));
 							
 							return true;
 						}
@@ -1981,15 +1967,15 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						}
 						plugin.saveSaveConfig();
 						
-						p.sendMessage(ChatColor.GREEN + "The position " + ChatColor.GOLD + positionName + ChatColor.GREEN +
-						" was successfully deleted!");
+						p.sendMessage(ChatUtils.colorMessage(true, "The position ", positionName,
+						" was successfully deleted!"));
 						
 						return true;
 					}
 				}
 			}else if(!action.equals("give")) {
-				sender.sendMessage(ChatColor.RED + "You haven't the permission to call " + ChatColor.GOLD + "/teleporter " +
-				action + ChatColor.RED + "!");
+				sender.sendMessage(ChatUtils.colorMessage(false, "You haven't the permission to call ", "/teleporter " +
+				action, "!"));
 				return true;
 			}
 		}
@@ -2054,7 +2040,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}else if(args[0].equals("edit_position") || args[0].equals("remove_position")) {
 					ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 					if(!teleporters.contains("positions")) {
-						autoComplete.add(ChatColor.RED + "There aren't any positions!");
+						autoComplete.add(ChatUtils.colorMessage(false, "There aren't any positions!"));
 						return autoComplete;
 					}
 					ConfigurationSection positions = teleporters.getConfigurationSection("positions");
@@ -2081,7 +2067,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				}else if(args[0].equals("add")) {
 					ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 					if(!teleporters.contains("positions")) {
-						autoComplete.add(ChatColor.RED + "There aren't any positions!");
+						autoComplete.add(ChatUtils.colorMessage(false, "There aren't any positions!"));
 						return autoComplete;
 					}
 					ConfigurationSection positions = teleporters.getConfigurationSection("positions");
@@ -2096,8 +2082,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					
 					ConfigurationSection teleporters = plugin.getSaveConfig().getConfigurationSection("teleporters");
 					if(!teleporters.contains(name)) {
-						autoComplete.add(ChatColor.RED + "The teleporter " + ChatColor.GOLD + name + ChatColor.RED +
-						" doesn't exsists!");
+						autoComplete.add(ChatUtils.colorMessage(false, "The teleporter ", name, " doesn't exsists!"));
 						
 						return autoComplete;
 					}
@@ -2158,15 +2143,14 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	
 	private boolean execCmdChunkLoader(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!(sender instanceof Player)) {
-			sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "Only players can use this command!"));
 			
 			return true;
 		}
 		
 		Player p = (Player)sender;
 		if(!p.hasPermission("chunk_loader")) {
-			sender.sendMessage(ChatColor.RED + "You haven't the permission to call " + ChatColor.GOLD + " /chunk_loader" +
-			ChatColor.RED + "!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "You haven't the permission to call ", "/chunk_loader", "!"));
 			return true;
 		}
 		if(args.length == 0) {
@@ -2204,7 +2188,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			
 			if(args[0].equals("add")) {
 				if(!name.matches("[0-9a-zA-Z_]*") || name.equals("default")) {
-					sender.sendMessage(ChatColor.RED + "The name " + ChatColor.GOLD + name + ChatColor.RED + " is not allowed!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The name ", name, " is not allowed!"));
 						
 					return true;
 				}
@@ -2212,12 +2196,12 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				inventoryNames.createSection(name);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " was successfully added!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The inventory ", name, " was successfully added!"));
 				
 				return true;
 			}else if(args[0].equals("remove")) {
 				if(!inventoryNames.contains(name)) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
@@ -2229,7 +2213,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					String inventoryOfWorld = inventoryWorlds.getString(world + ".inventory");
 					if(inventoryOfWorld.equals(name)) {
 						inventoryWorlds.set(world, null);
-						sender.sendMessage(ChatColor.GREEN + "The inventory of the world " + ChatColor.GOLD + world + ChatColor.GREEN + " was set to " + ChatColor.GOLD + "default" + ChatColor.GREEN + "!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "The inventory of the world ", world,
+						" was set to ", "default", "!"));
 					}
 				});
 				
@@ -2239,17 +2224,18 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					if(players.contains(player + ".inventory." + name)) {
 						players.set(player + ".inventory." + name, null);
 						String playerName = plugin.getServer().getOfflinePlayer(UUID.fromString(player)).getName();
-						sender.sendMessage(ChatColor.GREEN + "The inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " from the player " + ChatColor.GOLD + playerName + ChatColor.GREEN + " was succesfully removed!");
+						sender.sendMessage(ChatUtils.colorMessage(true, "The inventory ", name, " from the player ",
+						playerName, " was succesfully removed!"));
 					}
 				});
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " was successfully removed!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The inventory ", name, " was successfully removed!"));
 				
 				return true;
 			}else if(args[0].equals("list_world")) {
 				if(!inventoryNames.contains(name)) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
@@ -2264,7 +2250,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					}
 				});
 				
-				if(flag[0]){
+				if(flag[0]) {
 					sender.sendMessage("No worlds!");
 				}
 				
@@ -2276,7 +2262,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			
 			if(args[0].equals("show")) {
 				if(!(sender instanceof Player)) {
-					sender.sendMessage(ChatColor.RED + "Only players can use " + ChatColor.GOLD + "show" + ChatColor.RED + "!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "Only players can use ", "show", "!"));
 					
 					return true;
 				}
@@ -2284,7 +2270,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				Player p = (Player)sender;
 				
 				if(!inventoryNames.contains(name) && !name.equals("default")) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
@@ -2298,16 +2284,16 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					}
 				}
 				if(player == null) {
-					sender.sendMessage(ChatColor.RED + "The player " + ChatColor.GOLD + worldOrPlayerName + ChatColor.RED + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The player ", worldOrPlayerName, " wasn't found!"));
 					
 					return true;
 				}
 				
-				Inventory playerInv = plugin.getServer().createInventory(null, 54, ChatColor.GOLD + "Inventory " + ChatColor.RESET + "[" +
-				worldOrPlayerName + "@" + name + "]");
+				Inventory playerInv = plugin.getServer().createInventory(null, 54, ChatColor.GOLD + "Inventory " +
+				ChatColor.RESET + "[" + worldOrPlayerName + "@" + name + "]");
 				if(plugin.getSaveConfig().contains("player." + player.getUniqueId() + ".inventory." + name + ".content")) {
-					ConfigurationSection itemsSection = plugin.getSaveConfig().getConfigurationSection("player." + player.getUniqueId() + ".inventory." + name +
-					".content");
+					ConfigurationSection itemsSection = plugin.getSaveConfig().getConfigurationSection(
+					"player." + player.getUniqueId() + ".inventory." + name + ".content");
 					Set<String> savedItems = itemsSection.getKeys(false);
 					ItemStack[] items = new ItemStack[54];
 					savedItems.forEach(key -> {
@@ -2353,13 +2339,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				return true;
 			}else if(args[0].equals("add_world")) {
 				if(!inventoryNames.contains(name)) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
 				
 				if(plugin.getServer().getWorld(worldOrPlayerName) == null) {
-					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.RED + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The world ", worldOrPlayerName, " wasn't found!"));
 					
 					return true;
 				}
@@ -2367,19 +2353,19 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				inventoryWorlds.set(worldOrPlayerName + ".inventory", name);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.GREEN + " was successfully"
-				+ "added to the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The world ", worldOrPlayerName,
+				" was successfully added to the inventory ", name, "!"));
 				
 				return true;
 			}else if(args[0].equals("remove_world")) {
 				if(!inventoryNames.contains(name)) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
 				
 				if(plugin.getServer().getWorld(worldOrPlayerName) == null) {
-					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.RED + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The world ", worldOrPlayerName, " wasn't found!"));
 					
 					return true;
 				}
@@ -2387,13 +2373,13 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				inventoryWorlds.set(worldOrPlayerName, null);
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The world " + ChatColor.GOLD + worldOrPlayerName + ChatColor.GREEN + " was successfully removed "
-				+ "from the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + "!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The world ", worldOrPlayerName,
+				" was successfully removed from the inventory ", name, "!"));
 				
 				return true;
 			}else if(args[0].equals("set_default_spawn_point")) {
 				if(!inventoryNames.contains(name)) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
@@ -2408,8 +2394,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 					plugin.saveSaveConfig();
 				}
 				
-				sender.sendMessage(ChatColor.GREEN + "The spawn point of the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " "
-				+ "was successfully removed from inventory!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The spawn point of the inventory ", name,
+				"was successfully removed from inventory!"));
 				
 				return true;
 			}
@@ -2422,20 +2408,20 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				y = Integer.parseInt(args[4]);
 				z = Integer.parseInt(args[5]);
 			}catch(NumberFormatException e) {
-				sender.sendMessage(ChatColor.RED + "All coordinates have to be numbers!");
+				sender.sendMessage(ChatUtils.colorMessage(false, "All coordinates have to be numbers!"));
 				
 				return true;
 			}
 			
 			if(args[0].equals("set_default_spawn_point")) {
 				if(!inventoryNames.contains(name)) {
-					sender.sendMessage(ChatColor.RED + "The inventory " + ChatColor.GOLD + name + ChatColor.RED + " doesn't exist!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The inventory ", name, " doesn't exist!"));
 					
 					return true;
 				}
 				
 				if(plugin.getServer().getWorld(worldName) == null) {
-					sender.sendMessage(ChatColor.RED + "The world " + ChatColor.GOLD + worldName + ChatColor.RED + " wasn't found!");
+					sender.sendMessage(ChatUtils.colorMessage(false, "The world ", worldName, " wasn't found!"));
 					
 					return true;
 				}
@@ -2444,8 +2430,8 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				inventory.set("spawn_point", new Location(plugin.getServer().getWorld(worldName), x, y, z));
 				plugin.saveSaveConfig();
 				
-				sender.sendMessage(ChatColor.GREEN + "The spawn point of the inventory " + ChatColor.GOLD + name + ChatColor.GREEN + " "
-				+ "was successfully seted to inventory!");
+				sender.sendMessage(ChatUtils.colorMessage(true, "The spawn point of the inventory ", name,
+				"was successfully set to inventory!"));
 				
 				return true;
 			}
@@ -2564,8 +2550,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 	
 	private boolean execCmdReloadConfig(CommandSender sender, Command cmd, String label, String[] args) {
 		if(!sender.hasPermission("reload_config")) {
-			sender.sendMessage(ChatColor.RED + "You haven't the permission to call " + ChatColor.GOLD + " /reload_config" +
-			ChatColor.RED + "!");
+			sender.sendMessage(ChatUtils.colorMessage(false, "You haven't the permission to call ", " /reload_config", "!"));
 			return true;
 		}
 		if(args.length == 0) {
@@ -2573,7 +2558,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			plugin.reloadSaveConfig();
 			plugin.loadPermissions();
 			
-			sender.sendMessage(ChatColor.GREEN + "The config was successfully reloaded!");
+			sender.sendMessage(ChatUtils.colorMessage(true, "The config was successfully reloaded!"));
 			
 			return true;
 		}

@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import me.jddev0.Plugin;
+import me.jddev0.utils.ChatUtils;
 
 public class Event implements Listener {
 	private Plugin plugin;
@@ -110,7 +111,7 @@ public class Event implements Listener {
 	@EventHandler
 	public void onPlayerPortal(PlayerPortalEvent event) {
 		if(plugin.getConfig().getBoolean("disable_portals")) {
-			event.getPlayer().sendMessage(ChatColor.RED + "Portals are disabled!");
+			event.getPlayer().sendMessage(ChatUtils.colorMessage(false, "Portals are disabled!"));
 			event.setCancelled(true);
 		}
 	}
