@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -30,7 +31,6 @@ import me.jddev0.items.ItemChunkLoaderEvent;
 import me.jddev0.items.ItemElevatorSelectorEvent;
 import me.jddev0.items.ItemTeleporterEvent;
 import me.jddev0.world.creator.WorldMasterWorldCreator;
-import net.md_5.bungee.api.ChatColor;
 
 public class Plugin extends JavaPlugin {
 	private final String PLUGIN_NAME = "[" + ChatColor.RED + ChatColor.BOLD + "World" + ChatColor.RESET + ChatColor.BLUE +
@@ -305,7 +305,8 @@ public class Plugin extends JavaPlugin {
 			});
 		}
 		
-		getServer().getConsoleSender().sendMessage(PLUGIN_NAME + ChatColor.GREEN + "Plugin has been enabled.\n");
+		getServer().getConsoleSender().sendMessage(PLUGIN_NAME + ChatColor.GREEN + "Plugin has been enabled." +
+		ChatColor.RESET);
 	}
 	
 	@Override
@@ -321,6 +322,7 @@ public class Plugin extends JavaPlugin {
 			getServer().removeBossBar(new NamespacedKey(this, "player_count"));
 		}
 		
-		getServer().getConsoleSender().sendMessage(PLUGIN_NAME + ChatColor.GREEN + "Plugin has been disabled.\n");
+		getServer().getConsoleSender().sendMessage(PLUGIN_NAME + ChatColor.GREEN + "Plugin has been disabled." +
+		ChatColor.RESET);
 	}
 }

@@ -1,6 +1,6 @@
 name: WorldMaster
 author: JDDev0
-version: 1.0.8
+version: 1.0.9
 api-version: 1.16
 main: me.jddev0.Plugin
 description: World commands and other utilities

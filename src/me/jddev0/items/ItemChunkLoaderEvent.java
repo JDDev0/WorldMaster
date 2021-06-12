@@ -1,5 +1,6 @@
 package me.jddev0.items;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -12,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValueAdapter;
 
 import me.jddev0.Plugin;
-import net.md_5.bungee.api.ChatColor;
 
 public class ItemChunkLoaderEvent implements Listener {
 private Plugin plugin;

@@ -1,5 +1,6 @@
 package me.jddev0.event;
 
+import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -13,7 +14,6 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import me.jddev0.Plugin;
-import net.md_5.bungee.api.ChatColor;
 
 public class Event implements Listener {
 	private Plugin plugin;

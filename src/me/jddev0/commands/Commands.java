@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -45,7 +46,6 @@ import me.jddev0.items.ItemChunkLoader;
 import me.jddev0.items.ItemElevatorSelector;
 import me.jddev0.items.ItemTeleporter;
 import me.jddev0.world.creator.WorldMasterWorldCreator;
-import net.md_5.bungee.api.ChatColor;
 
 public class Commands implements Listener, TabCompleter, CommandExecutor {
 	private Plugin plugin;

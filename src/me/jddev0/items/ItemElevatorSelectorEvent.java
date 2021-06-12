@@ -1,5 +1,6 @@
 package me.jddev0.items;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,7 +12,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import me.jddev0.Plugin;
-import net.md_5.bungee.api.ChatColor;
 
 public class ItemElevatorSelectorEvent implements Listener {
 private Plugin plugin;

@@ -2,6 +2,7 @@ package me.jddev0.event;
 
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -33,7 +34,6 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 
 import me.jddev0.Plugin;
-import net.md_5.bungee.api.ChatColor;
 
 public class WorldEvent implements Listener {
 	private Plugin plugin;
