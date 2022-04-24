@@ -999,6 +999,24 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 			}
 		}
 	}
+	public List<Vector> getElevatorDoorBlocks(String elevatorName, String floorName) {
+		ConfigurationSection elevators = plugin.getSaveConfig().getConfigurationSection("elevators");
+		ConfigurationSection elevator = elevators.getConfigurationSection(elevatorName);
+		
+		List<Vector> doorBlocks = new LinkedList<>();
+		if(elevator.getConfigurationSection("floors").isVector(floorName)) {
+			doorBlocks.add(elevator.getConfigurationSection("floors").getVector(floorName));
+		}else {
+			List<?> elevatorBlocks = new LinkedList<>(elevator.getConfigurationSection("floors").getList(floorName));
+			elevatorBlocks.forEach(obj -> {
+				String[] data = ((String)obj).split("#");
+				doorBlocks.add(new Vector(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2])));
+			});
+			
+		}
+		
+		return doorBlocks;
+	}
 	public void moveElevator(String elevatorName, String floorName) {
 		moveElevator(elevatorName, floorName, 1);
 	}
@@ -1015,8 +1033,9 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 				World world = plugin.getServer().getWorld(elevator.getString("world"));
 				
 				int elevatorY = elevator.getInt("floorHeight");
-				Vector doorPos = elevator.getConfigurationSection("floors").getVector(floorName);
-				int floorY = doorPos.getBlockY();
+				List<Vector> doorBlocks = getElevatorDoorBlocks(elevatorName, floorName);
+				Vector mainDoorPos = doorBlocks.get(0);
+				int floorY = mainDoorPos.getBlockY();
 				double timeNeeds = 20/timePerBlock*Math.abs(floorY - elevatorY);
 				Vector velocity = new Vector(0, (floorY - elevatorY)/timeNeeds, 0);
 				Map<Vector, FallingBlock> movingElevatorBlocks = new HashMap<>();
@@ -1062,7 +1081,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						});
 						entities.forEach(e -> {
 							e.setFallDistance(0);
-							e.setVelocity(new Vector(e.getVelocity().getX(), velocity.getY(), e.getVelocity().getZ()));
+							e.setVelocity(e.getVelocity().setY(velocity.getY()));
 						});
 					}
 				}, 0, 0);
@@ -1085,17 +1104,19 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							elevatorBlockVectors.add(block.getX() + "#" + block.getY() + "#" + block.getZ());
 						});
 						
-						//Open door
+						//Open door(s)
 						new BukkitRunnable() {
 							@Override
 							public void run() {
-								Block doorBlock = world.getBlockAt(doorPos.getBlockX(), doorPos.getBlockY() + 1,
-								doorPos.getBlockZ());
-								if(doorBlock.getBlockData() instanceof Openable) {
-									Openable door = (Openable)doorBlock.getBlockData();
-									door.setOpen(true);
-									doorBlock.setBlockData(door);
-								}
+								doorBlocks.forEach(doorPos -> {
+									Block doorBlock = world.getBlockAt(doorPos.getBlockX(), doorPos.getBlockY() + 1,
+									doorPos.getBlockZ());
+									if(doorBlock.getBlockData() instanceof Openable) {
+										Openable door = (Openable)doorBlock.getBlockData();
+										door.setOpen(true);
+										doorBlock.setBlockData(door);
+									}
+								});
 							}
 						}.runTaskLater(plugin, 20);
 						
@@ -1201,7 +1222,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 						if(floor.equals("permission"))
 							return;
 						
-						int y = floors.getVector(floor).getBlockY();
+						int y = getElevatorDoorBlocks(elevatorName, floor).get(0).getBlockY();
 						if(y == elevator.getInt("floorHeight")) {
 							actualFloor[0] = floor;
 						}
@@ -1218,15 +1239,18 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 							" is already on the floor ", args[1], "!"));
 							return true;
 						}
-						//Close door
-						Vector doorLocation = floors.getVector(actualFloor[0]);
-						Block doorBlock = plugin.getServer().getWorld(elevator.getString("world")).getBlockAt(doorLocation.
-						getBlockX(), doorLocation.getBlockY() + 1, doorLocation.getBlockZ());
-						if(doorBlock.getBlockData() instanceof Openable) {
-							Openable door = (Openable)doorBlock.getBlockData();
-							door.setOpen(false);
-							doorBlock.setBlockData(door);
-						}
+						
+						//Close door(s)
+						List<Vector> doorBlocks = getElevatorDoorBlocks(elevatorName, actualFloor[0]);
+						doorBlocks.forEach(doorLocation -> {
+							Block doorBlock = plugin.getServer().getWorld(elevator.getString("world")).getBlockAt(doorLocation.
+							getBlockX(), doorLocation.getBlockY() + 1, doorLocation.getBlockZ());
+							if(doorBlock.getBlockData() instanceof Openable) {
+								Openable door = (Openable)doorBlock.getBlockData();
+								door.setOpen(false);
+								doorBlock.setBlockData(door);
+							}
+						});
 					}
 					
 					if(elevator.contains("speed")) {
