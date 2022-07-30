@@ -994,7 +994,7 @@ public class Commands implements Listener, TabCompleter, CommandExecutor {
 		for(int i = 0;i < inv.getSize();i++) {
 			if(inv.getItem(i) == null)
 				continue;
-			if(inv.getItem(i).getItemMeta().getDisplayName().equals(ChatColor.BOLD + "" + ChatColor.GOLD + "Elevator Selector")) {
+			if(inv.getItem(i).getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Elevator Selector")) {
 				inv.setItem(i, new ItemStack(Material.AIR));
 			}
 		}
