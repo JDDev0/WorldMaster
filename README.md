@@ -102,3 +102,9 @@ If set to true, all portals will be disabled.<br>
 6) [Optional] Take all items for buying out of the chest
 
 The shop owner sees all items in the chest and the buyer sees the shop page
+
+## FAQ
+### How do I add floors to my elevator?
+See [Issue: Elevator Use #1](https://github.com/JDDev0/WorldMaster/issues/1)
+### How do I use my elevator?
+See [Issue: Elevator Use #1](https://github.com/JDDev0/WorldMaster/issues/1)
