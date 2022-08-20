@@ -1,5 +1,6 @@
 # WorldMaster
-This is a spigot MC plugin with many usefull commands.
+This is a spigot MC plugin with many useful commands.<br>
+Download on Curse Forge: [WorldMaster](https://www.curseforge.com/minecraft/bukkit-plugins/worldmaster)
 
 ## Installation
 1) Unzip the zip file from the release
