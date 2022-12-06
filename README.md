@@ -1,6 +1,7 @@
 # WorldMaster
 This is a spigot MC plugin with many useful commands.<br>
 Download on CurseForge: [WorldMaster](https://www.curseforge.com/minecraft/bukkit-plugins/worldmaster)
+Download on Modrinth: [WorldMaster](https://modrinth.com/plugin/worldmaster)
 
 ## Installation
 1) Unzip the zip file from the release
